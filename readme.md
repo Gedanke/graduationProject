@@ -7,7 +7,7 @@ Some codes of graduation project
 ## Project Structure
 
 * [readme.md](readme.md) ```readme```
-* ata](data) ```dataset```
+* [data](data) ```dataset```
   * [originalDataSet](data/originalDataSet) ```original dataSet```
     * [1.txt](data/originalDataSet/1.txt)
     * ...
