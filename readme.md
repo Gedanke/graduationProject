@@ -65,8 +65,7 @@ Some codes of graduation project
 
 方法：
 
-* one-hot 编码
-* 熵
+熵
 
 
 
