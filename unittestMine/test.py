@@ -2,8 +2,10 @@
 
 import os
 import abc
+import pandas
 from abc import ABC
 from abc import ABCMeta, abstractmethod
+from sklearn.neighbors import KDTree
 
 folder = "/home/dfs/common/148_data"
 
@@ -40,8 +42,26 @@ class B(A):
         print("abc.abstractmethod abc.abstractmethod")
 
 
+# metaclass=ABCMeta
+class IStream(metaclass=ABCMeta):
+    @abc.abstractmethod
+    def read(self, maxbytes=-1):
+        print("  ")
+
+    @abstractmethod
+    def write(self, data=""):
+        print("wire")
+
+
+class II(IStream):
+
+    def read(self, maxbytes=-1):
+        super().read()
+
+    def write(self, data=""):
+        super().write()
+        print("ww")
+
+
 if __name__ == "__main__":
-    _b = B(1)
-    _b.BB()
-    _b.fun()
-    _b.common()
+    print()
