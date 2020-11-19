@@ -34,8 +34,10 @@ class ReliefFSupervised(ReliefF):
 
     def __init__(self, data, sample_rate):
         """
-        :param data: 数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
-        :param sample_rate: 抽样比例，以一定比例从数据集中抽取样本
+        :param data:
+        数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
+        :param sample_rate:
+        抽样比例，以一定比例从数据集中抽取样本
         """
         ReliefF.__init__(self, data, sample_rate)
 
@@ -54,8 +56,10 @@ class ReliefFUnsupervised(ReliefF):
 
     def __init__(self, data, sample_rate):
         """
-        :param data: 数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
-        :param sample_rate: 抽样比例，以一定比例从数据集中抽取样本
+        :param data:
+        数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
+        :param sample_rate:
+        抽样比例，以一定比例从数据集中抽取样本
         """
         ReliefF.__init__(self, data, sample_rate)
 
@@ -78,8 +82,10 @@ class ReliefFUnsupervisedImprove(ReliefF):
 
     def __init__(self, data, sample_rate):
         """
-        :param data: 数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
-        :param sample_rate: 抽样比例，以一定比例从数据集中抽取样本
+        :param data:
+        数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
+        :param sample_rate:
+        抽样比例，以一定比例从数据集中抽取样本
         """
         ReliefF.__init__(self, data, sample_rate)
 

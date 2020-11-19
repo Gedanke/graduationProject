@@ -27,11 +27,16 @@ class KNN(object):
 
     def __init__(self, path: str, train_path: str, test_path: str, feature_dict: Dict[str, int], k: int):
         """
-        :param path: 数据路径
-        :param train_path: 训练集数据路径
-        :param test_path: 测试集数据路径
-        :param feature_dict: 特征字典(dict)
-        :param k: 近邻数(int)
+        :param path:
+        数据集路径
+        :param train_path:
+        训练集数据路径
+        :param test_path:
+        测试集数据路径
+        :param feature_dict:
+        特征字典(dict)
+        :param k:
+        近邻数(int)
         """
         '''全体数据'''
         self.data = pandas.read_csv(path)
@@ -199,8 +204,10 @@ class NaiveBayes(object):
 
     def __init__(self, path_train: str, path_test: str):
         """
-        :param path_train: 训练数据集路径
-        :param path_test: 测试数据集路径
+        :param path_train:
+        训练数据集路径
+        :param path_test:
+        测试数据集路径
         """
         self.path_train = path_train
         self.path_test = path_test
@@ -303,8 +310,10 @@ class NaiveBayesGauss(object):
 
     def __init__(self, path_train: str, path_test: str):
         """
-        :param path_train: 训练数据集路径
-        :param path_test: 测试数据集路径
+        :param path_train:
+        训练数据集路径
+        :param path_test:
+        测试数据集路径
         """
         self.path_train = path_train
         self.path_test = path_test
@@ -479,11 +488,16 @@ class DecisionNode:
 
     def __init__(self, col=-1, value=None, results=None, tb=None, fb=None):
         """
-        :param col: 待检验的判断条件所对应的列索引值
-        :param value: 为了使结果为True,当前列必须匹配的值
-        :param results: 保存的是针对当前分支的结果,字典类型
-        :param tb: DecisionNode,对应于结果为true时,树上相对于当前节点的子树上的节点
-        :param fb: DecisionNode,对应于结果为false时,树上相对于当前节点的子树上的节点
+        :param col:
+        待检验的判断条件所对应的列索引值
+        :param value:
+        为了使结果为True,当前列必须匹配的值
+        :param results:
+        保存的是针对当前分支的结果,字典类型
+        :param tb:
+        DecisionNode,对应于结果为true时,树上相对于当前节点的子树上的节点
+        :param fb:
+        DecisionNode,对应于结果为false时,树上相对于当前节点的子树上的节点
         """
         self.col = col
         self.value = value
@@ -501,8 +515,10 @@ class DecisionTree(object):
 
     def __init__(self, path_train: str, path_test: str):
         """
-        :param path_train: 训练数据集路径
-        :param path_test: 测试数据集路径
+        :param path_train:
+        训练数据集路径
+        :param path_test:
+        测试数据集路径
         列表中的数据均为str类型
         使用is_number可以判断一个字符串是否为数值型
         """
@@ -760,8 +776,10 @@ https://segmentfault.com/a/1190000012328603
 class ClassifyTree(object):
     def __init__(self, path_train: str, path_test: str):
         """
-        :param path_train: 训练数据集路径
-        :param path_test: 测试数据集路径
+        :param path_train:
+        训练数据集路径
+        :param path_test:
+        测试数据集路径
         """
         self.train_data = list(csv.reader(open(path_train, "r")))
         self.attributes = self.train_data.pop(0)
@@ -777,7 +795,6 @@ class ClassifyTree(object):
         初始化数据
         :return:
         """
-
         '''训练集'''
         for i in range(len(self.train_data)):
             for j in range(len(self.train_data[i])):

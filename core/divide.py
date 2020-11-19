@@ -32,7 +32,8 @@ class KDTree(object):
 
     def __init__(self, data: pandas.DataFrame):
         """
-        :param data: 数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
+        :param data:
+        数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
         """
         self.data = data
 
@@ -48,8 +49,10 @@ class KMeans(object):
 
     def __init__(self, data: pandas.DataFrame, parameter_list: Dict[str, str]):
         """
-        :param data: 数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
-        :param parameter_list: 其他可以的参数字典
+        :param data:
+        数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
+        :param parameter_list:
+        其他的参数字典
         """
         self.data = data
         self.parameter_list = parameter_list

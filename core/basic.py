@@ -28,8 +28,10 @@ class ReliefF(metaclass=ABCMeta):
 
     def __init__(self, data: pandas.DataFrame, sample_rate: float):
         """
-        :param data: 数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
-        :param sample_rate: 抽样比例，以一定比例从数据集中抽取样本
+        :param data:
+        数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
+        :param sample_rate:
+        抽样比例，以一定比例从数据集中抽取样本
         """
         self.data = data
         self.sample_rate = sample_rate
