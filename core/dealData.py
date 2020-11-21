@@ -4,7 +4,6 @@ import os
 import csv
 import random
 import pandas
-import operator
 from typing import List, Dict
 from collections import Counter
 from sklearn.preprocessing import MinMaxScaler
@@ -59,8 +58,10 @@ class TransformData(object):
         """
         :param path: 
         txt 文件的路径
-        :param separator: 数据之间的分割符
-        :param attribute_name: 数据集每列的列名列表
+        :param separator:
+        数据之间的分割符
+        :param attribute_name:
+        数据集每列的列名列表
         """
         self.path = path
         self.separator = separator
@@ -148,11 +149,11 @@ class DealData(object):
         self.attribute_variance = dict()
         '''样本数量'''
         self.sample_num = int(len(self.data))
-        ''''''
+        '''标签列名'''
         self.label = ""
-        ''''''
-        ''''''
+        '''有监督数据集的路径'''
         self.supervised_path = ""
+        '''无监督数据集的路径'''
         self.unSupervised_path = ""
         self.init_data()
 
@@ -176,7 +177,9 @@ class DealData(object):
         for path_l in path_list:
             self.supervised_path += path_l + "/"
         self.unSupervised_path = self.supervised_path
+        '''有监督数据集的路径'''
         self.supervised_path += shot_name + "_supervised" + extension
+        '''无监督数据集的路径'''
         self.unSupervised_path += shot_name + "_unSupervised" + extension
 
     def variance_data(self):
@@ -223,12 +226,12 @@ class DealData(object):
         一份数据集保持原样，另一份去除标签，两者区别仅仅在于部分样本是否存在方差
         :return:
         """
-        ''''''
+        '''待去除标签的样本数'''
         sample = int(round(int(self.sample_num * self.remove_rate)))
-        ''''''
+        '''待去除标签的样本索引'''
         sample_index = sorted(random.sample(list(range(self.sample_num)), sample))
         for index in sample_index:
-            ''''''
+            '''将要去除样本的标签赋值为 None'''
             self.data.loc[index, self.label] = "None"
         self.data.to_csv(self.unSupervised_path, index=False, sep=",")
 
@@ -237,14 +240,43 @@ class DivideData(object):
     """
     以 divide_rate 划分数据集，结束后
     训练集在文件后加 _train，测试集后加 _test
-    若 divide_rate 为1，则没有被划分，保持原文件不变
+    若 divide_rate 为 1，则没有被划分，保持原文件不变
 
     """
 
-    def __int__(self, data_path, divide_rate: float):
+    def __init__(self, data_path, divide_rate: float):
         """
-        :param data_path
+        :param data_path:
+        csv 文件的路径
         :param divide_rate:
+        划分比例
         """
         self.path = data_path
         self.divide_rate = divide_rate
+        '''读取的数据集'''
+        self.data = pandas.read_csv(self.path)
+        '''训练集路径'''
+        self.train_path = ""
+        '''测试集路径'''
+        self.test_path = ""
+        if divide_rate != 0:
+            self.divide_data()
+
+    def divide_data(self):
+        """
+        以 divide_rate 比例划分数据集，划分的文件在当前文件夹下
+        训练集在文件后加 _train，测试集后加 _test
+        :return:
+        """
+        path_, shot_name, extension = gain_extension(self.path)
+        '''训练集路径'''
+        self.train_path = path_ + "/" + shot_name + "_train" + extension
+        '''测试集路径'''
+        self.test_path = path_ + "/" + shot_name + "_test" + extension
+        '''训练数据集'''
+        train_data = self.data.sample(frac=self.divide_rate, random_state=None, axis=0)
+        '''测试数据集'''
+        test_data = self.data[~self.data.index.isin(train_data.index)]
+        '''写入数据集'''
+        train_data.to_csv(self.train_path, index=False, sep=",")
+        test_data.to_csv(self.test_path, index=False, sep=",")

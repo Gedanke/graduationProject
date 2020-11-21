@@ -22,7 +22,7 @@ class ReliefF(metaclass=ABCMeta):
     在与当前样本每个不同标签的样本集中分别寻找 k 个最近邻样本
     计算每个特征在一次迭代过程中的权重得分
     连续特征权重得分按两个属性间的距离计算
-    ？那离散特征权重得分是非0即1，还按其熵值的差值计算
+    离散特征权重得分是非0即1
     
     """
 
@@ -35,7 +35,18 @@ class ReliefF(metaclass=ABCMeta):
         """
         self.data = data
         self.sample_rate = sample_rate
+        ''''''
+        self.attribute_list = list(self.data.columns)
+        ''''''
+        self.label_name = self.attribute_list[-1]
+        ''''''
+        self.sample_num = len(self.data)
+        '''*** abstractmethod ***'''
+        self.search_space = dict()
 
     @abstractmethod
     def fun(self):
-        pass
+        """
+
+        :return:
+        """

@@ -4,6 +4,8 @@ import pandas
 import operator
 from typing import List
 from core.dealData import *
+from core.reliefF import *
+from core.basic import *
 
 original_path = "../originalDataSet/testData/xigua.txt"
 separator = ","
@@ -33,8 +35,25 @@ def fun2():
 
 
 data_path = "../processedDataSet/testData/xigua_unSupervised.csv"
-divide_rate = 1
+divide_rate = 0.5
+
+
+def fun3():
+    dd = DivideData(data_path, divide_rate)
+
+
+sample_rate = 0.3
+
+
+def relief_f():
+    d_ = pandas.read_csv(data_path)
+    r_supervised = ReliefFSupervised(d_, sample_rate)
+    print(r_supervised.label_name)
+    print(r_supervised.attribute_list)
+
 
 if __name__ == "__main__":
     # fun1()
-    fun2()
+    # fun2()
+    # fun3()
+    relief_f()
