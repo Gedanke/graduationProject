@@ -32,12 +32,9 @@ def fun2():
     d.deal_data()
 
 
-
-data_path = ""
+data_path = "../processedDataSet/testData/xigua_unSupervised.csv"
 divide_rate = 1
 
 if __name__ == "__main__":
     # fun1()
-    # print(csv_path)
     fun2()
-
