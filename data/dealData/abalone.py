@@ -7,7 +7,9 @@ from core.dealData import *
 
 original_path = "../originalDataSet/abalone/abalone.txt"
 separator = " "
-attribute_name = ["D", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"]
+attribute_name = [
+    "Label", "Length", "Diam", "Height", "Whole", "Shucked", "Viscera", "Shell", "Rings"
+]
 
 
 def fun1():
@@ -16,16 +18,22 @@ def fun1():
 
 
 csv_path = "../originalDataSet/abalone/abalone.csv"
-
 attribute_dict = {
-    "A1": 0, "A2": 0, "A3": 0, "A4": 0, "A5": 0, "A6": 0, "A7": 0, "A8": 1,
-    "D": -1
+    "Length": 0, "Diam": 0, "Height": 0, "Whole": 0, "Shucked": 0, "Viscera": 0, "Shell": 0, "Rings": 0,
+    "Label": -1
 }
-remove_rate = 0.2
+remove_rate = 0.8
+
+
+def fun2():
+    d = DealData(csv_path, attribute_dict, remove_rate)
+    d.deal_data()
+
 
 data_path = ""
 divide_rate = 1
 
 if __name__ == "__main__":
-    fun1()
-    print(csv_path)
+    # fun1()
+    # print(csv_path)
+    fun2()

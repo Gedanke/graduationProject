@@ -13,20 +13,20 @@ Some codes of graduation project
     * [1.txt](data/processedDataSet/1.txt)
     * ...
   * [dealData](data/dealData) ```processing data set```
-    * [1.py](data/dealData/1.py)
+    * [1.py](data/dealData/abalone.py)
     * ...
 * [core](core) ```The core code of all algorithms```
     * ...
 * [unittestMine](unittestMine) ```test```
   * ...
 * [runData](runData) ```Run on each data set```
-  * [1.py](runData/1.py)
+  * [1.py](runData/abalone.py)
   * ..
 * [result](result) ```Store results```
-  * [1.md](result/1.md)
+  * [1.md](result/abalone.md)
   * ...
 * [analysisResult](analysisResult) ```analysis the result```
-  * [1.py](analysisResult/1.py) or [1.m](analysisResult/1.m)
+  * [1.py](analysisResult/abalone.py) or [1.m](analysisResult/abalone.m)
   * ...
 * [GUI](GUI) ```The relevant code of the GUI part```
   * [resource](GUI/resource) 资源
