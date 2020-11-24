@@ -34,7 +34,8 @@ def fun2():
     d.deal_data()
 
 
-data_path = "../processedDataSet/testData/xigua_unSupervised.csv"
+data_path = "../processedDataSet/testData/xigua_supervised.csv"
+data_path_ = "../processedDataSet/testData/xigua_unSupervised.csv"
 divide_rate = 0.5
 
 
@@ -42,18 +43,53 @@ def fun3():
     dd = DivideData(data_path, divide_rate)
 
 
-sample_rate = 0.3
+sample_rate = 0.5
+
+k = 3
 
 
 def relief_f():
-    d_ = pandas.read_csv(data_path)
-    r_supervised = ReliefFSupervised(d_, sample_rate)
-    print(r_supervised.label_name)
-    print(r_supervised.attribute_list)
+    r_supervised = ReliefFSupervised(pandas.read_csv(data_path), sample_rate, k)
+    r_unsupervised = ReliefFUnsupervised(pandas.read_csv(data_path_), sample_rate, k)
+    r_unsupervised_improve = ReliefFUnsupervisedImprove(pandas.read_csv(data_path_), sample_rate, k)
+
+    # print(r_supervised.label_name)
+    # print(r_supervised.attribute_list)
+    #
+    # print(r_unsupervised.label_name)
+    # print(r_unsupervised.attribute_list)
+    #
+    # print(r_unsupervised_improve.label_name)
+    # print(r_unsupervised_improve.attribute_list)
+
+    r_supervised.relief_f()
+    r_unsupervised.relief_f()
+    r_unsupervised_improve.relief_f()
+    print(r_supervised.label_list)
+    print(r_unsupervised.label_list)
+    print(r_unsupervised_improve.label_list)
 
 
 if __name__ == "__main__":
     # fun1()
     # fun2()
     # fun3()
-    relief_f()
+    # relief_f()
+    data = pandas.read_csv(data_path)
+    # print(data.iloc[1])
+    # print(type(data.iloc[1]))
+    # s = {'否', '是'}
+    # print(type(s))
+    # for ss in s:
+    #     print(ss)
+    l = [1, 2, 3]
+    print(data)
+    print(data.iloc[l])
+    ll = data.iloc[0]
+    print(ll["色泽"])
+    dic = {
+        "1": [1, 2, 3], "2": [3, 2, 1]
+    }
+    for a, b in dic.items():
+        print(a, b)
+        print(type(a), type(b))

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .basic import *
+import pandas
 
 """
 这三个类继承了 ReliefF 抽象类，主要的不同点是寻找最近邻样本集合的方式不同
@@ -32,17 +33,27 @@ class ReliefFSupervised(ReliefF):
 
     """
 
-    def __init__(self, data, sample_rate):
+    def __init__(self, data: pandas.DataFrame, attribute_dict: Dict[str, int], sample_rate: float, k: int):
         """
         :param data:
         数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
+        :param attribute_dict:
+        attribute_dict 是属性名字典
         :param sample_rate:
         抽样比例，以一定比例从数据集中抽取样本
+        :param k:
+        ReliefF 算法里面要寻找的近邻 k
         """
-        ReliefF.__init__(self, data, sample_rate)
+        ReliefF.__init__(self, data, attribute_dict, sample_rate, k)
 
-    def fun(self):
-        pass
+    def init_abstract_msg(self):
+        """
+        初始化相关参数，这些参数在抽象方法里，即需要不同子类去实现
+        :return:
+        """
+        '''有监督的在全体样本上抽取'''
+        sample = int(round(self.sample_num * self.sample_rate))
+        self.sample_index = random.sample(list(range(self.sample_num)), sample)
 
 
 class ReliefFUnsupervised(ReliefF):
@@ -54,17 +65,35 @@ class ReliefFUnsupervised(ReliefF):
 
     """
 
-    def __init__(self, data, sample_rate):
+    def __init__(self, data: pandas.DataFrame, attribute_dict: Dict[str, int], sample_rate: float, k: int):
         """
         :param data:
         数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
+        :param attribute_dict:
+        attribute_dict 是属性名字典
         :param sample_rate:
         抽样比例，以一定比例从数据集中抽取样本
+        :param k:
+        ReliefF 算法里面要寻找的近邻 k
         """
-        ReliefF.__init__(self, data, sample_rate)
+        ReliefF.__init__(self, data, attribute_dict, sample_rate, k)
 
-    def fun(self):
-        pass
+    def init_abstract_msg(self):
+        """
+        初始化相关参数，这些参数在抽象方法里，即需要不同子类去实现
+        :return:
+        """
+        '''无监督的只在有标签的样本上抽取，无标签的样本标签名处为 None'''
+        num = 0
+        tmp_list = list(self.data[self.label_name])
+        for tmp in tmp_list:
+            '''统计有标签的样本数'''
+            if tmp != "None":
+                num += 1
+        sample = int(round(num * self.sample_rate))
+        self.sample_index = random.sample(list(range(self.sample_num)), sample)
+        '''s '''
+        self.label_list.remove("None")
 
 
 class ReliefFUnsupervisedImprove(ReliefF):
@@ -80,14 +109,32 @@ class ReliefFUnsupervisedImprove(ReliefF):
 
     """
 
-    def __init__(self, data, sample_rate):
+    def __init__(self, data: pandas.DataFrame, attribute_dict: Dict[str, int], sample_rate: float, k: int):
         """
         :param data:
         数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
+        :param attribute_dict:
+        attribute_dict 是属性名字典
         :param sample_rate:
         抽样比例，以一定比例从数据集中抽取样本
+        :param k:
+        ReliefF 算法里面要寻找的近邻 k
         """
-        ReliefF.__init__(self, data, sample_rate)
+        ReliefF.__init__(self, data, attribute_dict, sample_rate, k)
 
-    def fun(self):
-        pass
+    def init_abstract_msg(self):
+        """
+        初始化相关参数，这些参数在抽象方法里，即需要不同子类去实现
+        :return:
+        """
+        '''无监督的只在有标签的样本上抽取，无标签的样本标签名处为 None'''
+        num = 0
+        tmp_list = list(self.data[self.label_name])
+        for tmp in tmp_list:
+            '''统计有标签的样本数'''
+            if tmp != "None":
+                num += 1
+        sample = int(round(num * self.sample_rate))
+        self.sample_index = random.sample(list(range(self.sample_num)), sample)
+        '''s '''
+        self.label_list.remove("None")

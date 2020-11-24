@@ -46,7 +46,7 @@ class B(A):
 class IStream(metaclass=ABCMeta):
     @abc.abstractmethod
     def read(self, maxbytes=-1):
-        print("  ")
+        print("read")
 
     @abstractmethod
     def write(self, data=""):
@@ -56,12 +56,16 @@ class IStream(metaclass=ABCMeta):
 class II(IStream):
 
     def read(self, maxbytes=-1):
-        super().read()
+        print("READ")
+
+    # super().read()
 
     def write(self, data=""):
         super().write()
-        print("ww")
+        print("WIRE")
 
 
 if __name__ == "__main__":
-    print()
+    I = II()
+    I.read()
+    I.write()

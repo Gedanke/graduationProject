@@ -44,6 +44,7 @@ class KMeans(object):
     在每一个类别集合中，选取该类所有样本的中心点为该类别的初始点
     最后每个类别都有一个初始基本点，之后进行聚类，k 类
     在每类中按比例抽取样本
+    指定聚类的类别 k，初始中心点
 
     """
 
@@ -56,5 +57,8 @@ class KMeans(object):
         """
         self.data = data
         self.parameter_list = parameter_list
+        '''k 值是有标签的类别数'''
+        self.k = 0
+        '''中心点，是相同标签点的中心点'''
         self.center_point = list()
         self.k = 0

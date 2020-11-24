@@ -18,7 +18,7 @@ TransformData：
 
 DealData:
 对处理好的 csv 文件进行进一步处理
-将连续特征归一化，对离散特征的各个属性求得其熵值，之后也对其进行归一化
+将连续特征归一化，对离散特征的各个属性概率化，之后也对其进行归一化，最后计算离散特征的方差
 得到处理好后的 csv 文件
 
 
@@ -35,9 +35,9 @@ def gain_extension(path):
     """
     拆分文件路径 path
     :return:
-    @file_path : 返回文件路径
-    @shot_name : 返回文件名
-    @extension : 返回文件后缀
+    @file_path: 返回文件路径
+    @shot_name: 返回文件名
+    @extension: 返回文件后缀
     """
     file_path, temp_filename = os.path.split(path)
     shot_name, extension = os.path.splitext(temp_filename)
@@ -113,7 +113,7 @@ class TransformData(object):
 
 class DealData(object):
     """
-    对 csv 文件处理后得到两份完整的处理好后的csv文件
+    对 csv 文件处理后得到两份完整的处理好后的 csv 文件
     对连续特征归一化，对离散特征可以参与数值运算，
     如果能直接被数值化，其也需要和连续特征一样被归一化，内容统一为浮点数，
     如果不能，连续特征也需要归一化，离散特征使用 VDM 度量
@@ -211,7 +211,10 @@ class DealData(object):
                 self.attribute_variance[key] = self.data[key].values.var()
             # 连续特征
             elif value == 1:
-                '''统计每个属性出现的次数'''
+                '''统计每个属性出现的次数，概率化'''
+                '''在概率化每个属性，之后再归一化，最后计算方差'''
+
+
                 d = dict(Counter(self.data[key]).items())
                 s = 0
                 avg = 1 / len(d)
