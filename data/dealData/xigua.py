@@ -49,9 +49,12 @@ k = 3
 
 
 def relief_f():
-    r_supervised = ReliefFSupervised(pandas.read_csv(data_path), sample_rate, k)
-    r_unsupervised = ReliefFUnsupervised(pandas.read_csv(data_path_), sample_rate, k)
-    r_unsupervised_improve = ReliefFUnsupervisedImprove(pandas.read_csv(data_path_), sample_rate, k)
+    r_supervised = ReliefFSupervised(pandas.read_csv(data_path), attribute_dict,
+                                     sample_rate, k)
+    r_unsupervised = ReliefFUnsupervised(pandas.read_csv(data_path_),
+                                         attribute_dict, sample_rate, k)
+    r_unsupervised_improve = ReliefFUnsupervisedImprove(pandas.read_csv(data_path_),
+                                                        attribute_dict, sample_rate, k)
 
     # print(r_supervised.label_name)
     # print(r_supervised.attribute_list)
@@ -65,31 +68,45 @@ def relief_f():
     r_supervised.relief_f()
     r_unsupervised.relief_f()
     r_unsupervised_improve.relief_f()
-    print(r_supervised.label_list)
-    print(r_unsupervised.label_list)
-    print(r_unsupervised_improve.label_list)
+    print(r_supervised.label_set)
+    print(r_unsupervised.label_set)
+    print(r_unsupervised_improve.label_set)
 
 
 if __name__ == "__main__":
     # fun1()
     # fun2()
     # fun3()
-    # relief_f()
-    data = pandas.read_csv(data_path)
-    # print(data.iloc[1])
-    # print(type(data.iloc[1]))
-    # s = {'否', '是'}
-    # print(type(s))
-    # for ss in s:
-    #     print(ss)
-    l = [1, 2, 3]
+    relief_f()
+    data = pandas.read_csv(data_path_)
+    d1 = data.iloc[0]
+    d2 = data.iloc[1]
+    print(d1 == d2)
+
+
+def test():
+    data = pandas.read_csv(data_path_)
+    key_ = "色泽"
+    d = data.groupby(key_).groups
+    d_dict = dict()
+    min_value = 1.1
+    max_value = -0.1
+    for key, value in d.items():
+        print(key, value)
+        d_dict[key] = len(value) / 17
+        # print(type(d_dict[key]))
+        if d_dict[key] > max_value:
+            max_value = d_dict[key]
+        if d_dict[key] < min_value:
+            min_value = d_dict[key]
+    print(d_dict)
+    print(min_value, max_value)
+    avg = 1 / len(d_dict)
+    s = 0
+    for key, value in d_dict.items():
+        s += pow(abs(value - avg), 2)
+        d_dict[key] = (value - min_value) / (max_value - min_value)
+    print(s)
+    print(d_dict)
+    data[key_].replace(d_dict, inplace=True)
     print(data)
-    print(data.iloc[l])
-    ll = data.iloc[0]
-    print(ll["色泽"])
-    dic = {
-        "1": [1, 2, 3], "2": [3, 2, 1]
-    }
-    for a, b in dic.items():
-        print(a, b)
-        print(type(a), type(b))

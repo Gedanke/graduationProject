@@ -5,7 +5,6 @@ import csv
 import random
 import pandas
 from typing import List, Dict
-from collections import Counter
 from sklearn.preprocessing import MinMaxScaler
 
 """
@@ -212,16 +211,34 @@ class DealData(object):
             # 连续特征
             elif value == 1:
                 '''统计每个属性出现的次数，概率化'''
-                '''在概率化每个属性，之后再归一化，最后计算方差'''
-
-
-                d = dict(Counter(self.data[key]).items())
+                '''在概率化每个属性，之后计算方差，最后再归一化'''
+                '''使用 groupby 对 self.data[key] 分组'''
+                d = self.data.groupby(key).groups
+                d_dict = dict()
+                min_value = 1.1
+                max_value = -0.1
+                for k, v in d.items():
+                    '''得到每个属性出现的概率'''
+                    d_dict[k] = len(v) / self.sample_num
+                    '''求最大值'''
+                    if d_dict[k] > max_value:
+                        max_value = d_dict[k]
+                    '''求最小值'''
+                    if d_dict[k] < min_value:
+                        min_value = d_dict[k]
+                '''方差和'''
                 s = 0
-                avg = 1 / len(d)
-                '''计算方差'''
-                for key_, value_ in d.items():
-                    s += pow(abs(value_ / self.sample_num - avg), 2)
-                self.attribute_variance[key] = s / len(d)
+                '''均值'''
+                avg = 1 / len(d_dict)
+                for k, v in d_dict.items():
+                    '''求方差'''
+                    s += pow(abs(v - avg), 2)
+                    '''归一化每个属性的概率'''
+                    d_dict[k] = (v - min_value) / (max_value - min_value)
+                '''收集该离散特征的方差'''
+                self.attribute_variance[key] = s / len(d_dict)
+                '''对该离散特征的每个属性值替换为其归一化后的概率值'''
+                self.data[key].replace(d_dict, inplace=True)
 
     def deal_data(self):
         """

@@ -47,41 +47,61 @@ class ReliefF(metaclass=ABCMeta):
         self.attribute_list = list(self.data.columns)
         '''标签名'''
         self.label_name = self.attribute_list[-1]
-        '''标签列表，此时可能含有无标签标记 None，无监督算法可以在抽象方法 init_abstract_msg 里去除 None'''
-        self.label_list = set(self.data[self.label_name])
+        '''有监督标签集合，此时可能含有无标签标记 None，无监督算法可以在抽象方法 init_abstract_msg 里去除 None'''
+        # self.label_set = set(self.data[self.label_name])
+        self.label_set = set()
         '''样本数量'''
         self.sample_num = len(self.data)
         '''特征权重向量'''
         self.feature_vector = dict()
-        '''抽样样本索引集合'''
+        '''抽样样本索引列表'''
         self.sample_index = list()
         '''*** abstractmethod ***'''
         '''近邻搜索空间，键为标签，值为样本索引'''
         self.search_space = dict()
-        ''''''
+        '''每个标签的数量，无监督算法中是不包括 None'''
+        self.label_nums = dict()
 
     @abstractmethod
     def init_abstract_msg(self):
         """
         初始化相关参数，这些参数在抽象方法里，即需要不同子类去实现
+        self.sample_index: 抽样样本索引列表
+        self.label_set: 标签集合
+        self.search_space: 近邻搜索空间，键为标签，值为样本索引
+        self.label_nums: 每个标签的数量
         :return:
         """
+        '''self.sample_index'''
         '''有监督的在全体样本上抽取，而无监督的只在有标签的样本上抽取'''
         '''这里写的是有监督的'''
         sample = int(round(self.sample_num * self.sample_rate))
         self.sample_index = random.sample(list(range(self.sample_num)), sample)
-        ''''''
+        '''self.label_set'''
+        '''self.search_space'''
+        '''https://www.yiibai.com/pandas/python_pandas_groupby.html'''
+        '''self.label_nums'''
+        '''将数据集按 self.label_name 分组，键为标签，值为相同标签样本的索引，已经是字典序了'''
+        label_groups = self.data.groupby(self.label_name).groups
+        for label, value in label_groups.items():
+            '''收集标签'''
+            self.label_set.add(label)
+            '''收集标签下样本的索引'''
+            self.search_space[label] = list(value)
+            '''收集标签下的样本索引长度，即每个样本的数量'''
+            self.label_nums[label] = len(value)
 
     @abstractmethod
     def gain_near_miss_param(self, label_r: str, label_c: str) -> float:
         """
+        不同类待乘的系数，不同子类实现的方式不一样
         返回与 label_r 不同标签的 label_c 特征加权时的系数
         :param label_r: 当前样本的标签
         :param label_c: 与 label_r 不同标签样本的标签 label_c 
         :return:
         @param: 待乘的系数
         """
-        param = 0.0
+        param = 1
         return param
 
     @abstractmethod
@@ -89,10 +109,10 @@ class ReliefF(metaclass=ABCMeta):
         """
         在当前样本 row 搜索空间里寻找最近邻居样本，
         不同子类去寻找最近邻居样本的方法略有不同，即需要不同子类去实现
-        :param row:
-        :param label:
+        :param row: 当前样本
+        :param label: 在该 label 下搜索 k 个最近邻样本
         :return:
-        sim
+        sim: k 个最近邻样本的索引
         """
         '''有监督，无监督，改进无监督搜索用于加权的 k 个最近邻样本略有不同'''
         sim = list()
@@ -113,7 +133,7 @@ class ReliefF(metaclass=ABCMeta):
         '''样本标签'''
         row_label = row[self.label_name]
         '''遍历所有标签'''
-        for label in self.label_list:
+        for label in self.label_set:
             '''同类标签与每个异类标签'''
             '''这里实现的是有监督的'''
             if label == row_label:
@@ -155,7 +175,8 @@ class ReliefF(metaclass=ABCMeta):
                     '''不同子类的系数不同'''
                     miss += tmp_param * abs(row[feature] - self.data.iloc[k_index][feature])
         else:
-            '''离散特征，使用 VDM 度量，加权使用非 0 即 1'''
+            '''离散特征，有监督算法可以使用 VDM 度量，无监督算法不太建议使用 VDM，因为没有标签'''
+            '''为了统一起见，可以概率化离散特征值'''
             for index in near_hit:
                 '''与 label_r 同类的用于加权的 k 个最近邻样本'''
                 hit += 0 if row[feature] == self.data.iloc[index][feature] else 1
@@ -164,7 +185,7 @@ class ReliefF(metaclass=ABCMeta):
                 '''label_c 与 label_r 不同标签，有 len(label_list) - 1 类'''
                 tmp_param = self.gain_near_miss_param(label_r, label_c)
                 for k_index in k_list:
-                    '''不同子类的系数不同'''
+                    '''不同子类的系数不同，加权使用非 0 即 1'''
                     miss += tmp_param * (0 if row[feature] == self.data.iloc[k_index][feature] else 1)
         '''一次迭代在一个特征上的得分'''
         weight = (hit - miss) / (sample * self.k)
@@ -185,7 +206,7 @@ class ReliefF(metaclass=ABCMeta):
         attribute_no_label_list.remove(self.label_name)
         for index in self.sample_index:
             '''一次抽样的每个特征权重'''
-            one_score = list()
+            one_score = dict()
             '''被选中的样本，是有标签的'''
             row = self.data.iloc[index]
             '''abstractmethod'''
