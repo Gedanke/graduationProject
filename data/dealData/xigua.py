@@ -55,6 +55,7 @@ def relief_f():
                                          attribute_dict, sample_rate, k)
     r_unsupervised_improve = ReliefFUnsupervisedImprove(pandas.read_csv(data_path_),
                                                         attribute_dict, sample_rate, k)
+
     res_supervised = r_supervised.relief_f()
     print(res_supervised)
     res_unsupervised = r_unsupervised.relief_f()
