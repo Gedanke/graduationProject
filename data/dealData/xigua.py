@@ -55,22 +55,12 @@ def relief_f():
                                          attribute_dict, sample_rate, k)
     r_unsupervised_improve = ReliefFUnsupervisedImprove(pandas.read_csv(data_path_),
                                                         attribute_dict, sample_rate, k)
-
-    # print(r_supervised.label_name)
-    # print(r_supervised.attribute_list)
-    #
-    # print(r_unsupervised.label_name)
-    # print(r_unsupervised.attribute_list)
-    #
-    # print(r_unsupervised_improve.label_name)
-    # print(r_unsupervised_improve.attribute_list)
-
-    r_supervised.relief_f()
-    r_unsupervised.relief_f()
-    r_unsupervised_improve.relief_f()
-    print(r_supervised.label_set)
-    print(r_unsupervised.label_set)
-    print(r_unsupervised_improve.label_set)
+    res_supervised = r_supervised.relief_f()
+    print(res_supervised)
+    res_unsupervised = r_unsupervised.relief_f()
+    print(res_unsupervised)
+    res_unsupervised_improve = r_unsupervised_improve.relief_f()
+    print(res_unsupervised_improve)
 
 
 if __name__ == "__main__":
@@ -78,10 +68,6 @@ if __name__ == "__main__":
     # fun2()
     # fun3()
     relief_f()
-    data = pandas.read_csv(data_path_)
-    d1 = data.iloc[0]
-    d2 = data.iloc[1]
-    print(d1 == d2)
 
 
 def test():
@@ -110,3 +96,22 @@ def test():
     print(d_dict)
     data[key_].replace(d_dict, inplace=True)
     print(data)
+
+
+def test1():
+    data = pandas.read_csv(data_path_)
+    # print(data)
+    attribute_list = list(data.columns)
+    '''['色泽', '根蒂', '敲声', '纹理', '脐部', '触感', '密度', '含糖率', '好瓜']'''
+    attribute_list.remove(attribute_list[-1])
+    l = ['密度', '含糖率']
+    row = data.iloc[0]
+    distance_dict = {
+        index: abs(row[l] - data.iloc[index][l]).sum()
+        for index in range(17)
+    }
+    sim_list = sorted(distance_dict.items(), key=lambda item: item[1], reverse=False)
+
+    print(distance_dict)
+
+    print(max(distance_dict, key=distance_dict.get))

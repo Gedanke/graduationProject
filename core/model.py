@@ -6,7 +6,7 @@ import numpy
 import pandas
 import operator
 import treePlotter
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from collections import Counter
 import copy
 
@@ -100,7 +100,8 @@ class KNN(object):
     def distance(self, row):
         """
         距离度量,和Relief算法一致
-        :return: 与样本 row 最近的k个样本(self.train_data)中出现最多的标签
+        :return: 
+        与样本 row 最近的k个样本(self.train_data)中出现最多的标签
         """
         '''训练数据集下的索引'''
         index_list = list(self.train_data.index)
@@ -111,7 +112,7 @@ class KNN(object):
             index_dict[index] = 0
             row_index = self.train_data.iloc[index]
             for feature in self.attributes_list:
-                # VDM
+                '''VDM'''
                 if self.feature_dict[feature] == 2:
                     '''提前先各个标签下特征值在标签中的个数统计好'''
                     all_d = 0
@@ -123,9 +124,10 @@ class KNN(object):
                             self.unordered_label_dict[la][feature][c_j_2] / self.unordered_all_dict[feature][c_j_2]
                         )
                     index_dict[index] += all_d
-                # p=1 闵科夫斯基距离
+
                 else:
-                    # 该部分的数据已经归一化处理,在Relief.py中已经处理
+                    '''p=1 闵科夫斯基距离'''
+                    '''该部分的数据已经归一化处理'''
                     index_dict[index] += abs(row[feature] - row_index[feature])
         sim = sorted(index_dict.items(), key=operator.itemgetter(1))[0:self.k]
         sim = dict(sim)
@@ -139,7 +141,8 @@ class KNN(object):
 
     def get_result(self):
         """
-        :return: 正确率
+        :return: 
+        正确率
         """
         '''预测标签集'''
         predict_label = []
@@ -158,32 +161,38 @@ class KNN(object):
         return right / int(len(self.test_label))
 
 
-def mean(feature):
+def mean(feature) -> float:
     """
-    :return: 特征均值
+    :param feature:
+    :return:
+    特征均值
     """
     return sum(feature) / float(len(feature))
 
 
-def sta_dev(feature):
+def sta_dev(feature) -> float:
     """
-    :return: 特征标准差
+    :param feature:
+    :return:
+    特征标准差
     """
     mean_ = mean(feature)
     return math.sqrt(sum([pow(f - mean_, 2) for f in feature]) /
                      float(len(feature) - 1))
 
 
-def summary(instances):
+def summary(instances) -> List[Tuple[float, float]]:
     """
-    :return: summary_
+    :param instances:
+    :return:
+    summary_
     """
     summary_ = [(mean(feature), sta_dev(feature)) for feature in zip(*instances)]
     del summary_[-1]
     return summary_
 
 
-def calculate_possibility(x, mean_, sta_dev_):
+def calculate_possibility(x, mean_, sta_dev_) -> float:
     """
     :param x:
     :param mean_:
@@ -269,7 +278,8 @@ class NaiveBayes(object):
 
     def predict(self, sample):
         """
-        :return: best_label
+        :return: 
+        best_label
         """
         self.calculate_possibility(sample)
         best_label = None
@@ -282,16 +292,18 @@ class NaiveBayes(object):
 
     def get_predictions(self):
         """
-        :return: predictions
+        :return: 
+        predictions
         """
         predictions = []
         for index in range(len(self.test_data)):
             predictions.append(self.predict(self.test_data[index]))
         return predictions
 
-    def get_result(self):
+    def get_result(self) -> float:
         """
-        :return: 正确率
+        :return:
+        正确率
         """
         correct = 0
         predictions = self.get_predictions()
@@ -353,7 +365,8 @@ class NaiveBayesGauss(object):
 
     def separate(self):
         """
-        :return: data_class
+        :return: 
+        data_class
         """
         self.num_samples = len(self.train_data)
         self.train_label = self.train_label.reshape(self.train_data.shape[0], 1)
@@ -439,7 +452,8 @@ class NaiveBayesGauss(object):
 
     def get_result(self):
         """
-        :return: 返回结果
+        :return: 
+        返回结果
         """
         self.train_model()
         acc = 0
@@ -464,7 +478,8 @@ class NaiveBayesGauss(object):
 def is_number(num):
     """
     :param num: 传入字符串
-    :return: 判断字符串是否为一个数(整数,浮点数)
+    :return: 
+    判断字符串是否为一个数(整数,浮点数)
     """
     try:
         float(num)
@@ -520,7 +535,7 @@ class DecisionTree(object):
         :param path_test:
         测试数据集路径
         列表中的数据均为str类型
-        使用is_number可以判断一个字符串是否为数值型
+        使用 is_number 可以判断一个字符串是否为数值型
         """
         '''训练集'''
         self.train_data = list(csv.reader(open(path_train, "r", encoding="UTF-8-sig")))
@@ -592,7 +607,8 @@ class DecisionTree(object):
         :param data:
         :param column:
         :param value:
-        :return: 数据集被拆分成的两个集合
+        :return: 
+        数据集被拆分成的两个集合
         """
         '''数值型(含浮点数和整数型),str类型'''
         if is_number(value):
@@ -667,7 +683,7 @@ class DecisionTree(object):
     def print_tree(self):
         """
         可以直接使用上面那个函数
-        个人C++的习惯
+        个人使用 C++ 的习惯
         :return:
         """
         self.print_tree_(self.tree)
@@ -748,7 +764,8 @@ class DecisionTree(object):
     def get_result(self, args):
         """
         :param args: 参数列表 第一个为函数名
-        :return: 正确率
+        :return: 
+        正确率
         """
         correct = 0
         self.tree = self.build_tree(self.train_data, args[0])
@@ -813,7 +830,8 @@ class ClassifyTree(object):
         计算给定数据集的香农熵
         熵越大,数据集的混乱程度越大
         :param data_set: 数据集
-        :return: 数据集的香农熵
+        :return: 
+        数据集的香农熵
         """
         num_entropy = len(data_set)
         label_counts = dict()
@@ -834,7 +852,8 @@ class ClassifyTree(object):
         :param data_set: 数据集
         :param axis: 选择维度
         :param value: 选择值
-        :return: 划分数据集
+        :return: 
+        划分数据集
         """
         ret_data_set = list()
         for feat_vec in data_set:
@@ -848,7 +867,8 @@ class ClassifyTree(object):
         """
         选择最好的数据集划分维度
         :param data_set: 数据集
-        :return: 最好的划分维度
+        :return: 
+        最好的划分维度
         """
         num_features = len(data_set[0]) - 1
         base_entropy = self.gain_entropy(data_set)
@@ -879,7 +899,8 @@ class ClassifyTree(object):
         数据集已经处理了所有属性,但是类标签依然不是唯一的
         采用多数判决的方法决定该子节点的分类
         :param class_list: 分类类别列表
-        :return: 子节点的分类
+        :return: 
+        子节点的分类
         """
         class_count = dict()
         for vote in class_list:
@@ -894,7 +915,8 @@ class ClassifyTree(object):
         递归构建决策树
         :param data_set: 数据集
         :param attributes: 特征标签
-        :return: 决策树
+        :return: 
+        决策树
         """
         class_list = [example[-1] for example in data_set]
         if class_list.count(class_list[0]) == len(class_list):
@@ -925,7 +947,8 @@ class ClassifyTree(object):
         :param tree: 决策树
         :param feat_attributes: 分类标签
         :param test_vec: 测试数据
-        :return: 决策结果
+        :return: 
+        决策结果
         """
         first_str = list(tree.keys())[0]
         second_dict = tree[first_str]
@@ -943,7 +966,8 @@ class ClassifyTree(object):
         """
         跑决策树
         :param tree: 决策树
-        :return: 决策结果
+        :return: 
+        决策结果
         """
         correct = 0
         index = 0
@@ -958,7 +982,8 @@ class ClassifyTree(object):
     def get_result(self):
         """
         得到结果并绘制树
-        :return: result
+        :return: 
+        result
         """
         data_set = self.train_data
         labels_tmp = self.attributes[:]

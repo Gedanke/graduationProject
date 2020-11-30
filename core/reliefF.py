@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .basic import *
+import copy
 import pandas
 
 """
@@ -22,10 +23,6 @@ ReliefFUnsupervisedImprove:
 因样本空间中仅含有部分的样本标签，它在无标签样本集加上与当前样本同类的有标签样本集合中寻找最近邻样本
 
 """
-
-
-# def distance_measure(current, aims) -> float:
-#     return 0
 
 
 class ReliefFSupervised(ReliefF):
@@ -74,9 +71,9 @@ class ReliefFSupervised(ReliefF):
         :param label_r: 当前样本的标签
         :param label_c: 与 label_r 不同标签样本的标签 label_c
         :return:
-        @param: 待乘的系数
+        param: 待乘的系数
         """
-        param = self.label_nums[label_c] / (self.sample_num - self.label_nums[label_r])
+        param = self.label_dict[label_c] / (self.sample_num - self.label_dict[label_r])
         return param
 
     def distance(self, row: pandas.Series, label: str) -> List[int]:
@@ -89,11 +86,29 @@ class ReliefFSupervised(ReliefF):
         sim: k 个最近邻样本的索引
         """
         '''有监督下的 ReliefF 的算法的实现'''
-        sim = list()
-        ''''''
-
-        ''''''
-
+        '''当前样本标签'''
+        row_label = row[self.label_name]
+        '''标签不参与度量，去除标签'''
+        row_now = row.drop(self.label_name)
+        '''在 self.search_space 里面遍历每个样本，并与 row_now 作差，求每个特征上的绝对值和'''
+        distance_dict = {
+            index: abs(row_now - self.data.iloc[index][self.attribute_list]).sum()
+            for index in self.search_space[label]
+        }
+        '''将距离字典排序'''
+        distance_list = sorted(distance_dict.items(), key=lambda item: item[1], reverse=False)
+        if row_label == label:
+            '''若 row 的标签和 label 相同，寻找与self.search_space[label] 中最近的 k + 1 个邻居'''
+            sim = [
+                distance_list[index][0] for index in range(self.k + 1)
+            ]
+            '''最后把第一个去除了'''
+            sim.pop(0)
+        else:
+            '''若 row 的标签和 label 不相同，寻找与self.search_space[label] 中最近的 k 个邻居'''
+            sim = [
+                distance_list[index][0] for index in range(self.k)
+            ]
         return sim
 
 
@@ -129,10 +144,8 @@ class ReliefFUnsupervised(ReliefF):
         :return:
         """
         super().init_abstract_msg()
-        '''self.sample_index'''
-        '''无监督的只在有标签的样本上抽取，无标签的样本标签名处为 None，只需要用总数减去 None 的数目'''
-        sample = int(round((self.sample_num - self.label_nums["None"]) * self.sample_rate))
-        self.sample_index = random.sample(list(range(self.sample_num)), sample)
+        '''无标签样本数量 len_none'''
+        len_none = self.label_dict["None"]
         '''self.label_set，无监督算法标签集合需要去除 None'''
         self.label_set.remove("None")
         '''self.search_space，所有标签都在没有标签的样本上搜索，键为 Any，表示所有标签，值为样本索引，索引建议排序'''
@@ -140,10 +153,20 @@ class ReliefFUnsupervised(ReliefF):
         '''原有的 self.search_space 弹出键值为 None 的索引列表，弹出了无标签数据集索引'''
         no_label_list = self.search_space.pop("None")
         '''此时的 self.search_space 是不含无标签数据集的索引，需要拷贝一份'''
-        self.label_nums = self.search_space.copy()
+        '''self.label_dict 是含有标签的数据集索引'''
+        self.label_dict = copy.deepcopy(self.search_space)
         '''self.search_space 清空后，再添加无标签数据集的全部索引'''
         self.search_space.clear()
         self.search_space["Any"] = no_label_list
+        '''self.sample_index'''
+        '''无监督的只在有标签的样本上抽取，无标签的样本标签名处为 None，只需要用总数减去 None 的数目 len_none'''
+        sample = int(round((self.sample_num - len_none) * self.sample_rate))
+        '''sample_list 是有标签样本列表'''
+        sample_list = list()
+        '''收集有标签样本索引'''
+        for l_ in self.label_dict.values():
+            sample_list.extend(l_)
+        self.sample_index = random.sample(sample_list, sample)
 
     def gain_near_miss_param(self, label_r: str, label_c: str) -> float:
         """
@@ -153,13 +176,14 @@ class ReliefFUnsupervised(ReliefF):
         :param label_r: 当前样本的标签
         :param label_c: 与 label_r 不同标签样本的标签 label_c
         :return:
-        @param: 待乘的系数
+        param: 待乘的系数
         """
         param = 1 / (len(self.label_set) - 1)
         return param
 
     def distance(self, row: pandas.Series, label: str) -> List[int]:
         """
+        无监督下的 ReliefF 的算法的实现
         在当前样本 row 搜索空间里寻找最近邻居样本，无监督下的 ReliefF 的算法的实现是
         所 row 的标签和 label 相同，在 label 的搜索空间里找一个最近邻样本，
         该最近邻样本在所有无标签样本空间上寻找 k 个最近邻样本
@@ -170,8 +194,38 @@ class ReliefFUnsupervised(ReliefF):
         :return:
         sim: k 个最近邻样本的索引
         """
-        '''有监督，无监督，改进无监督搜索用于加权的 k 个最近邻样本略有不同'''
-        sim = list()
+        '''row 得现在 self.label_dict 有标签的数据集上寻找一个最近邻样本'''
+        '''当前样本标签'''
+        row_label = row[self.label_name]
+        '''标签不参与度量，去除标签'''
+        row_near = row.drop(self.label_name)
+        '''在 self.label_dict[label] 里面遍历每个样本，并与 row_now 作差，求每个特征上的绝对值和'''
+        distance_dict = {
+            index: abs(row_near - self.data.iloc[index][self.attribute_list]).sum()
+            for index in self.label_dict[label]
+        }
+        if row_label == label:
+            '''若 row 的标签和 label 相同'''
+            '''先在 self.label_dict[label] 寻找一个与 row 最近的样本 row_index'''
+            '''将距离字典排序，是第二个'''
+            distance_list = sorted(distance_dict.items(), key=lambda item: item[1], reverse=False)
+            row_index = distance_list[1][0]
+        else:
+            '''若 row 的标签和 label 不相同'''
+            '''先在 self.label_dict[label] 寻找一个与 row 最近的样本 row_now'''
+            row_index = min(distance_dict, key=distance_dict.get)
+        '''row 在 self.label_dict[label] 中找到的最近样本 row_now'''
+        row_now = self.data.iloc[row_index].drop(self.label_name)
+        '''row_now 在 self.search_space["Any"] 里寻找最近的 k 个邻居'''
+        distance_dict_tmp = {
+            index: abs(row_now - self.data.iloc[index][self.attribute_list]).sum()
+            for index in self.search_space["Any"]
+        }
+        distance_list_tmp = sorted(distance_dict_tmp.items(), key=lambda item: item[1], reverse=False)
+        '''返回前 k 个最近样本'''
+        sim = [
+            distance_list_tmp[index][0] for index in range(self.k)
+        ]
         return sim
 
 
@@ -212,22 +266,30 @@ class ReliefFUnsupervisedImprove(ReliefF):
         :return:
         """
         super().init_abstract_msg()
-        '''self.sample_index'''
-        '''无监督的只在有标签的样本上抽取，无标签的样本标签名处为 None，只需要用总数减去 None 的数目'''
-        sample = int(round((self.sample_num - self.label_nums["None"]) * self.sample_rate))
-        self.sample_index = random.sample(list(range(self.sample_num)), sample)
+        '''无标签样本数量 len_none'''
+        len_none = self.label_dict["None"]
         '''self.label_set，无监督算法标签集合需要去除 None'''
         self.label_set.remove("None")
         '''self.search_space，所有标签都在没有标签的样本与自己同标签的样本集合上搜索，键为标签，值为样本索引，索引建议排序'''
         '''self.label_nums，每个标签的数量，便于 self.gain_near_miss_param 的计算，无监督下的系数可能不需要'''
         '''原有的 self.search_space 弹出键值为 None 的索引列表，弹出了无标签数据索引'''
         no_label_list = self.search_space.pop("None")
-        '''self.search_space 只含有有标签样本索引'''
+        '''self.search_space 现在只含有有标签样本索引，需要拷贝一份'''
+        '''self.label_nums 是含有标签的数据集索引'''
+        self.label_dict = copy.deepcopy(self.search_space)
+        '''self.search_space 在含有有标签样本索引的基础上再添加无标签数据集的全部索引'''
         for label, value in self.search_space.items():
             '''每个有标签样本索引集合加上所有无标签数据索引'''
             self.search_space[label].extend(no_label_list)
-        '''self.label_nums 去除无标签数据的数量'''
-        self.label_nums.pop("None")
+        '''self.sample_index'''
+        '''无监督的只在有标签的样本上抽取，无标签的样本标签名处为 None，只需要用总数减去 None 的数目'''
+        sample = int(round((self.sample_num - len_none) * self.sample_rate))
+        '''sample_list 是有标签样本列表'''
+        sample_list = list()
+        '''收集有标签样本索引'''
+        for l_ in self.label_dict.values():
+            sample_list.extend(l_)
+        self.sample_index = random.sample(sample_list, sample)
 
     def gain_near_miss_param(self, label_r: str, label_c: str) -> float:
         """
@@ -237,13 +299,14 @@ class ReliefFUnsupervisedImprove(ReliefF):
         :param label_r: 当前样本的标签
         :param label_c: 与 label_r 不同标签样本的标签 label_c
         :return:
-        @param: 待乘的系数
+        param: 待乘的系数
         """
         param = 1 / (len(self.label_set) - 1)
         return param
 
     def distance(self, row: pandas.Series, label: str) -> List[int]:
         """
+        改进监督下的 ReliefF 的算法的实现
         在当前样本 row 搜索空间里寻找最近邻居样本，改进无监督下的 ReliefF 的算法是
         所 row 的标签和 label 相同，在 label 的搜索空间里找一个最近邻样本，
         该最近邻样本在所有无标签样本空间与含 label 的有标签样本空间的并集上寻找 k 个最近邻样本
@@ -254,6 +317,50 @@ class ReliefFUnsupervisedImprove(ReliefF):
         :return:
         sim: k 个最近邻样本的索引
         """
-        '''有监督，无监督，改进无监督搜索用于加权的 k 个最近邻样本略有不同'''
-        sim = list()
+        '''row 得现在 self.label_dict 有标签的数据集上寻找一个最近邻样本'''
+        '''当前样本标签'''
+        row_label = row[self.label_name]
+        '''标签不参与度量，去除标签'''
+        row_near = row.drop(self.label_name)
+        '''在 self.label_dict[label] 里面遍历每个样本，并与 row_now 作差，求每个特征上的绝对值和'''
+        distance_dict = {
+            index: abs(row_near - self.data.iloc[index][self.attribute_list]).sum()
+            for index in self.label_dict[label]
+        }
+        if row_label == label:
+            '''若 row 的标签和 label 相同'''
+            '''先在 self.label_dict[label] 寻找一个与 row 最近的样本 row_index'''
+            '''将距离字典排序，是第二个'''
+            distance_list = sorted(distance_dict.items(), key=lambda item: item[1], reverse=False)
+            row_index = distance_list[1][0]
+        else:
+            '''若 row 的标签和 label 不相同'''
+            '''先在 self.label_dict[label] 寻找一个与 row 最近的样本 row_now'''
+            row_index = min(distance_dict, key=distance_dict.get)
+        '''row 在 self.label_dict[label] 下找到的最近样本 row_now'''
+        row_now = self.data.iloc[row_index].drop(self.label_name)
+        '''row_now 在 self.search_space[label] 里寻找最近的 k 个邻居'''
+        distance_dict_tmp = {
+            index: abs(row_now - self.data.iloc[index][self.attribute_list]).sum()
+            for index in self.search_space[label]
+        }
+        '''按字典值排序'''
+        distance_list_tmp = sorted(distance_dict_tmp.items(), key=lambda item: item[1], reverse=False)
+        if row_label == label:
+            '''若 row 的标签和 label 相同'''
+            '''返回前 k + 2 个最邻居样本'''
+            sim = [
+                distance_list_tmp[index][0] for index in range(self.k + 2)
+            ]
+            '''row，row_now 是前两个样本，去除'''
+            sim.pop(0)
+            sim.pop(0)
+        else:
+            '''若 row 的标签和 label 不相同'''
+            '''返回前 k + 1 个最邻居样本'''
+            sim = [
+                distance_list_tmp[index][0] for index in range(self.k + 1)
+            ]
+            '''row_now 是第一个样本，去除'''
+            sim.pop(0)
         return sim

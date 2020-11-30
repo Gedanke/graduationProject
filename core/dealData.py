@@ -32,11 +32,11 @@ csv_path = ""
 
 def gain_extension(path):
     """
-    拆分文件路径 path
+    :param path: 拆分文件路径 path
     :return:
-    @file_path: 返回文件路径
-    @shot_name: 返回文件名
-    @extension: 返回文件后缀
+    file_path: 返回文件路径
+    shot_name: 返回文件名
+    extension: 返回文件后缀
     """
     file_path, temp_filename = os.path.split(path)
     shot_name, extension = os.path.splitext(temp_filename)
@@ -154,6 +154,7 @@ class DealData(object):
         self.supervised_path = ""
         '''无监督数据集的路径'''
         self.unSupervised_path = ""
+        '''init data'''
         self.init_data()
 
     def init_data(self):
@@ -195,21 +196,20 @@ class DealData(object):
         if len(self.attribute_continuous) != 0:
             '''归一化连续特征'''
             self.data[self.attribute_continuous] = model.fit_transform(self.data[self.attribute_continuous])
-        ''''''
+        '''先将仅对连续特征归一化的数据写入原数据集路径 self.path'''
         self.data.to_csv(self.path, index=False, sep=",")
-        self.data.to_csv(self.supervised_path, index=False, sep=",")
         '''求连续和离散特征方差特征'''
         for key, value in self.attribute_dict.items():
-            # 连续特征
             '''https://github.com/pandas-dev/pandas/issues/1798'''
+            '''连续特征'''
             if value == 0:
                 '''此种方式计算的方差是无偏的，分母是 n-1'''
                 # print(self.data[key].var())
                 '''此种方式计算的方差是有偏的，分母是 n，与 numpy 计算的方差一样'''
                 # print(self.data[key].values.var())
                 self.attribute_variance[key] = self.data[key].values.var()
-            # 连续特征
             elif value == 1:
+                '''连续特征'''
                 '''统计每个属性出现的次数，概率化'''
                 '''在概率化每个属性，之后计算方差，最后再归一化'''
                 '''使用 groupby 对 self.data[key] 分组'''
@@ -246,6 +246,8 @@ class DealData(object):
         一份数据集保持原样，另一份去除标签，两者区别仅仅在于部分样本是否存在方差
         :return:
         """
+        '''将对离散特征进行替换后的数据写入 self.supervised_path'''
+        self.data.to_csv(self.supervised_path, index=False, sep=",")
         '''待去除标签的样本数'''
         sample = int(round(int(self.sample_num * self.remove_rate)))
         '''待去除标签的样本索引'''
@@ -253,6 +255,7 @@ class DealData(object):
         for index in sample_index:
             '''将要去除样本的标签赋值为 None'''
             self.data.loc[index, self.label] = "None"
+        '''将去除了大部分标签的数据写入 self.unSupervised_path'''
         self.data.to_csv(self.unSupervised_path, index=False, sep=",")
 
 

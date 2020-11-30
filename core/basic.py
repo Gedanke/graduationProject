@@ -7,7 +7,7 @@ from typing import List, Dict
 
 """
 ReliefF是一个抽象类，它不可以被实例化
-可以由 ReliefFSupervised ,ReliefFUnsupervised 和 ReliefFUnsupervisedImprove 类继承并实现其中的若干个抽象方法
+可以由 ReliefFSupervised, ReliefFUnsupervised 和 ReliefFUnsupervisedImprove 类继承并实现其中的若干个抽象方法
 
 ReliefF 类是 ReliefF 算法的核心类，其中已经实现了大多数方法
 但由于有监督下的，无监督下的，改进无监督下的 ReliefF 算法在搜索最近邻样本时，或者其他部分略有不同
@@ -47,6 +47,8 @@ class ReliefF(metaclass=ABCMeta):
         self.attribute_list = list(self.data.columns)
         '''标签名'''
         self.label_name = self.attribute_list[-1]
+        '''属性列表，去除了标签名'''
+        self.attribute_list.remove(self.label_name)
         '''有监督标签集合，此时可能含有无标签标记 None，无监督算法可以在抽象方法 init_abstract_msg 里去除 None'''
         # self.label_set = set(self.data[self.label_name])
         self.label_set = set()
@@ -59,8 +61,9 @@ class ReliefF(metaclass=ABCMeta):
         '''*** abstractmethod ***'''
         '''近邻搜索空间，键为标签，值为样本索引'''
         self.search_space = dict()
-        '''每个标签的数量，无监督算法中是不包括 None'''
-        self.label_nums = dict()
+        '''有监督算法里是每个标签含有样本的数量，用来计算加权过程的系数'''
+        '''无监督算法因为含有 None，其是 self.search_space 去除 None 键值对后的字典'''
+        self.label_dict = dict()
 
     @abstractmethod
     def init_abstract_msg(self):
@@ -80,7 +83,7 @@ class ReliefF(metaclass=ABCMeta):
         '''self.label_set'''
         '''self.search_space'''
         '''https://www.yiibai.com/pandas/python_pandas_groupby.html'''
-        '''self.label_nums'''
+        '''self.label_dict'''
         '''将数据集按 self.label_name 分组，键为标签，值为相同标签样本的索引，已经是字典序了'''
         label_groups = self.data.groupby(self.label_name).groups
         for label, value in label_groups.items():
@@ -89,7 +92,7 @@ class ReliefF(metaclass=ABCMeta):
             '''收集标签下样本的索引'''
             self.search_space[label] = list(value)
             '''收集标签下的样本索引长度，即每个样本的数量'''
-            self.label_nums[label] = len(value)
+            self.label_dict[label] = len(value)
 
     @abstractmethod
     def gain_near_miss_param(self, label_r: str, label_c: str) -> float:
@@ -99,7 +102,7 @@ class ReliefF(metaclass=ABCMeta):
         :param label_r: 当前样本的标签
         :param label_c: 与 label_r 不同标签样本的标签 label_c 
         :return:
-        @param: 待乘的系数
+        param: 待乘的系数
         """
         param = 1
         return param
@@ -179,7 +182,7 @@ class ReliefF(metaclass=ABCMeta):
             '''为了统一起见，可以概率化离散特征值'''
             for index in near_hit:
                 '''与 label_r 同类的用于加权的 k 个最近邻样本'''
-                hit += 0 if row[feature] == self.data.iloc[index][feature] else 1
+                hit += (0 if row[feature] == self.data.iloc[index][feature] else 1)
             '''与 label_r 所有不同类的用于加权的 k 个最近邻样本'''
             for label_c, k_list in near_miss.items():
                 '''label_c 与 label_r 不同标签，有 len(label_list) - 1 类'''
@@ -201,9 +204,6 @@ class ReliefF(metaclass=ABCMeta):
         self.init_abstract_msg()
         '''特征权重列表，每一维记录着每一次迭代的特征权重'''
         score = list()
-        '''去除标签的'''
-        attribute_no_label_list = self.attribute_list
-        attribute_no_label_list.remove(self.label_name)
         for index in self.sample_index:
             '''一次抽样的每个特征权重'''
             one_score = dict()
@@ -214,7 +214,7 @@ class ReliefF(metaclass=ABCMeta):
             '''特别需要注意的是，有监督的 ReliefF 算法是在与当前同标签的样本集合中寻找 k '''
             near_hit_list, near_miss_dict = self.get_neighbor(row)
             '''遍历所有特征'''
-            for feature in attribute_no_label_list:
+            for feature in self.attribute_list:
                 '''连续型特征和离散型特征的加权方式不一样'''
                 weight = self.get_weight(feature, row, near_hit_list, near_miss_dict)
                 '''返回这次迭代过程每个特征'''
