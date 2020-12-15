@@ -2,10 +2,12 @@
 
 import pandas
 import operator
+import numpy
 from typing import List
 from core.dealData import *
 from core.reliefF import *
 from core.basic import *
+from core.divide import *
 
 original_path = "../originalDataSet/testData/xigua.txt"
 separator = ","
@@ -64,13 +66,6 @@ def relief_f():
     print(res_unsupervised_improve)
 
 
-if __name__ == "__main__":
-    # fun1()
-    # fun2()
-    # fun3()
-    relief_f()
-
-
 def test():
     data = pandas.read_csv(data_path_)
     key_ = "色泽"
@@ -111,8 +106,47 @@ def test1():
         index: abs(row[l] - data.iloc[index][l]).sum()
         for index in range(17)
     }
-    sim_list = sorted(distance_dict.items(), key=lambda item: item[1], reverse=False)
+    sim_list = sorted(distance_dict.items(),
+                      key=lambda item: item[1], reverse=False)
 
     print(distance_dict)
 
     print(max(distance_dict, key=distance_dict.get))
+
+
+def test2():
+    print("---numpy---")
+    a = [
+        [1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]
+    ]
+    data_array = numpy.array(a)
+    print(data_array.shape)
+    print(type(data_array))
+
+
+def test_Kmeans():
+    print("---K_Means---")
+    km = MKMeans(pandas.read_csv(data_path_))
+    # print(km.k)
+    # print(type(km.center_point))
+    # print(type(km.array_data))
+    # print(numpy.array(km.center_point))
+    print(km.k_means())
+    print(km.k_means_pluses())
+    print(km.k_means_m())
+
+    a = [
+        [1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]
+    ]
+    # print(type(numpy.mat(a)))
+    centroids = numpy.mat(numpy.zeros((2, 8)))
+    # print(centroids)
+
+
+if __name__ == "__main__":
+    # fun1()
+    # fun2()
+    # fun3()
+    # relief_f()
+    test_Kmeans()
+    # test2()
