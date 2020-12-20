@@ -282,6 +282,7 @@ class DivideData(object):
         self.train_path = ""
         '''测试集路径'''
         self.test_path = ""
+        '''divide_rate 为 0，没有划分的必要'''
         if divide_rate != 0:
             self.divide_data()
 

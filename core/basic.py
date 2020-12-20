@@ -6,7 +6,7 @@ from abc import ABCMeta, abstractmethod
 from typing import List, Dict
 
 """
-ReliefF是一个抽象类，它不可以被实例化
+ReliefF 是一个抽象类，它不可以被实例化
 可以由 ReliefFSupervised, ReliefFUnsupervised 和 ReliefFUnsupervisedImprove 类继承并实现其中的若干个抽象方法
 
 ReliefF 类是 ReliefF 算法的核心类，其中已经实现了大多数方法

@@ -3,6 +3,7 @@
 import pandas
 import operator
 import numpy
+import os
 from typing import List
 from core.dealData import *
 from core.reliefF import *
@@ -124,23 +125,63 @@ def test2():
     print(type(data_array))
 
 
+final_path_supervised = ""
+final_path_unSupervised = ""
+
+
+def deal_path(path):
+    """
+    :param path:
+    :return:
+    """
+    file_path, shot_name, extension = gain_extension(path)
+    folder = os.path.exists(path)
+    if not folder:
+        os.makedirs(file_path + "/kMeans/")
+    new_path = file_path + "/kMeans/" + shot_name + ".csv"
+    return new_path
+
+
 def test_Kmeans():
     print("---K_Means---")
-    km = MKMeans(pandas.read_csv(data_path_))
+    km = MKMeans(pandas.read_csv(data_path_), 0.3)
     # print(km.k)
     # print(type(km.center_point))
-    # print(type(km.array_data))
     # print(numpy.array(km.center_point))
-    print(km.k_means())
-    print(km.k_means_pluses())
-    print(km.k_means_m())
+    km.k_means()
+    # print(km.centroids)
+    # print(km.cluster_class)
+    km.k_means_pluses()
+    # print(km.centroids)
+    # print(km.cluster_class)
+    km.k_means_m()
+    # print(km.centroids)
+    # print(km.cluster_class)
 
-    a = [
-        [1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]
-    ]
-    # print(type(numpy.mat(a)))
-    centroids = numpy.mat(numpy.zeros((2, 8)))
-    # print(centroids)
+    data = km.array_data
+
+    # print("----")
+    # print(data)
+    # for cent in range(k):
+    #     pst_cluster = data[numpy.nonzero(km.cluster_class[:, 0].A == cent)[0]]
+    # print(data)
+    # print(numpy.nonzero(km.cluster_class[:, 0].A == 0)[0])
+    # print(numpy.nonzero(km.cluster_class[:, 0].A == 1)[0])
+    # print(data)
+    km.data_divide()
+    print(km.final_data)
+    km.print_result({"1": [9, 10, 11, 13, 15, 16], "2": [0, 1, 2, 3, 4, 5, 6, 7, 9, 12, 14]})
+    '''[(0, 6, [8, 10, 11, 13, 15, 16]), (1, 11, [0, 1, 2, 3, 4, 5, 6, 7, 9, 12, 14])]'''
+    final_path_supervised = deal_path(data_path)
+    final_path_unSupervised = deal_path(data_path_)
+    # print(final_path_supervised)
+    # print(final_path_unSupervised)
+    # index_list = list()
+    # for value in km.final_data.values():
+    #     index_list.extend(value)
+    # d = pandas.read_csv(data_path)
+    # d.iloc[index_list, :].to_csv(final_path_supervised, index=False, sep=",")
+    # print(d)
 
 
 if __name__ == "__main__":

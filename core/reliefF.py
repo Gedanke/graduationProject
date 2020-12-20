@@ -166,6 +166,7 @@ class ReliefFUnsupervised(ReliefF):
         '''收集有标签样本索引'''
         for l_ in self.label_dict.values():
             sample_list.extend(l_)
+        '''抽样索引列表'''
         self.sample_index = random.sample(sample_list, sample)
 
     def gain_near_miss_param(self, label_r: str, label_c: str) -> float:
@@ -289,6 +290,7 @@ class ReliefFUnsupervisedImprove(ReliefF):
         '''收集有标签样本索引'''
         for l_ in self.label_dict.values():
             sample_list.extend(l_)
+        '''抽取索引'''
         self.sample_index = random.sample(sample_list, sample)
 
     def gain_near_miss_param(self, label_r: str, label_c: str) -> float:

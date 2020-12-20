@@ -5,6 +5,7 @@ import pandas
 from typing import Dict, Any, Tuple
 import matplotlib.pyplot as plt
 import sys
+from core.dealData import *
 
 """
 该部分的任务是将大的数据集划分为若干块，从每一块中按一定比例抽取样本，汇总得到一个新的样本集合
@@ -22,6 +23,22 @@ KMeans:
 https://www.cnblogs.com/pinard/p/6164214.html
 
 """
+
+
+def deal_path(path):
+    """
+    :param path: 文件路径
+    :return:
+    new_path: 在该路径下，先创建一个 KMeans 文件夹，然后返回文件路径
+    """
+    file_path, shot_name, extension = gain_extension(path)
+    '''先判断该路径是否存在'''
+    folder = os.path.exists(file_path + "/kMeans/")
+    '''不存在，可以创建该 KMeans 文件夹'''
+    if not folder:
+        os.makedirs(file_path + "/kMeans/")
+    new_path = file_path + "/kMeans/" + shot_name + ".csv"
+    return new_path
 
 
 class KDTree(object):
@@ -95,7 +112,6 @@ def rand_cent_pluses(data, k: int) -> numpy.mat:
     centroids = numpy.mat(numpy.zeros((k, n)))
     '''step1: 随机选择样本里的一个点'''
     centroids[0, :] = data[numpy.random.randint(m), :]
-    # plot_center(data, numpy.array(centroids))
     '''迭代'''
     for c_id in range(k - 1):
         dist = list()
@@ -113,18 +129,18 @@ def rand_cent_pluses(data, k: int) -> numpy.mat:
         next_centroid = data[numpy.argmax(dist), :]
         '''选出了下一次的聚类中心，开始 k+1 循环'''
         centroids[c_id + 1, :] = next_centroid
-        # plot_center(data, numpy.array(centroids))
     return centroids
 
 
 def plot_center(data: numpy.mat, centroids: numpy.ndarray):
     """
-    绘制质心
-    :param data: 数据集
+    二维数据集绘制质心
+    :param data: 数据集，只适用于二维数据集
+    如果想在多维数据上使用，可以按特征类型，离散特征和连续特征对数据划分成二维，进行可视化
     :param centroids: 质心向量
     :return:
     """
-    plt.scatter(data[:, 0], data[:, 1], marker=".",
+    plt.scatter(data[:, 0].tolist(), data[:, 1].tolist(), marker=".",
                 color="gray", label="data points")
     plt.scatter(centroids[:-1, 0], centroids[:-1, 1],
                 color="black", label="previously selected centroids")
@@ -132,8 +148,8 @@ def plot_center(data: numpy.mat, centroids: numpy.ndarray):
                 color="red", label="next centroid")
     plt.title('Select % d th centroid' % (centroids.shape[0]))
     plt.legend()
-    plt.xlim(-5, 12)
-    plt.ylim(-10, 15)
+    plt.xlim(-1.1, 1.1)
+    plt.ylim(-0.1, 1.1)
     plt.show()
 
 
@@ -150,14 +166,17 @@ class MKMeans(object):
 
     """
 
-    def __init__(self, data: pandas.DataFrame, parameter_dict: Dict[str, Any] = None):
+    def __init__(self, data: pandas.DataFrame, sample: float, parameter_dict: Dict[str, Any] = None):
         """
         :param data:
         数据集 pandas.DataFrame 或 pandas.core.frame.DataFrame 类型
+        :param sample:
+        在聚类中心以 sample 比例抽取样本
         :param parameter_dict:
         其他的参数字典，可以考虑的有最大迭代次数
         """
         self.data = data
+        self.sample = sample
         self.parameter_dict = parameter_dict
         '''将 self.data 的数据域(只含特征值，不含标签)转换为 numpy 矩阵'''
         self.array_data = None
@@ -167,6 +186,12 @@ class MKMeans(object):
         self.center_point = None
         '''属性列表，包含标签名'''
         self.attribute_list = list(self.data.columns)
+        '''k 个类质心的位置坐标'''
+        self.centroids = None
+        '''样本所处的类以及到该类质心的距离'''
+        self.cluster_class = None
+        '''最终的数据'''
+        self.final_data = dict()
         '''一些默认参数，与 sklearn.cluster.KMeans 类相似，如果想改，通过 parameter_t 传入'''
         '''初始化部分参数'''
         self.init_data()
@@ -247,40 +272,98 @@ class MKMeans(object):
         '''返回 k 个聚类，聚类结果以及误差'''
         return centroids, cluster_class
 
-    def k_means(self) -> Tuple[numpy.ndarray, numpy.ndarray]:
+    def k_means(self):
         """
         KMeans 聚类算法
-        :param dist_means:
-        :param create_cent:
-        :return:
-        centroids: k 个类质心的位置坐标
-        cluster_class: 样本所处的类以及到该类质心的距离
         """
         '''聚类中心由 KMeans 聚类算法给出'''
         centroids_ = rand_cent(self.array_data, self.k)
-        centroids, cluster_class = self.k_means_basic(centroids_)
-        return centroids, cluster_class
+        self.centroids, self.cluster_class = self.k_means_basic(centroids_)
 
     def k_means_pluses(self):
         """
         KMeans++ 聚类算法
         https://zhuanlan.zhihu.com/p/149978127
-        :return:
-        centroids: k 个类质心的位置坐标
-        cluster_class: 样本所处的类以及到该类质心的距离
         """
         '''聚类中心由 KMeans++ 聚类算法给出'''
         centroids_ = rand_cent_pluses(self.array_data, self.k)
-        centroids, cluster_class = self.k_means_basic(centroids_)
-        return centroids, cluster_class
+        self.centroids, self.cluster_class = self.k_means_basic(centroids_)
 
     def k_means_m(self):
         """
         KMeans 改进初始聚类中心的聚类算法
         :return:
-        centroids: k 个类质心的位置坐标
-        cluster_class: 样本所处的类以及到该类质心的距离
         """
         '''聚类中心由改进的 KMeans 聚类算法给出'''
-        centroids, cluster_class = self.k_means_basic(self.center_point)
-        return centroids, cluster_class
+        self.centroids, self.cluster_class = self.k_means_basic(self.center_point)
+
+    def print_result(self, label_index: dict):
+        """
+        根据已经有的结果，对比计算得到的聚类结果，返回相应的信息
+        :param label_index:
+        :return:
+        """
+        i = 0
+        res = 0
+        '''将传入的字典转化为列表，列表每一行元素，第一个是标签序，第二个是索引长度，第三个是索引集合'''
+        label_list = list(range(len(label_index)))
+        '''矩阵维度'''
+        m = numpy.shape(self.array_data)[0]
+        '''转换'''     
+        for key, value in label_index.items():
+            label_list[i] = (i, len(value), set(value))
+            i += 1
+        '''按列表元素的第二个元素升序排序'''
+        label_list = sorted(label_list, key=lambda x: x[1], reverse=True)
+        result_list = list(range(self.k))
+        '''遍历所有标签'''
+        for cent in range(self.k):
+            '''获取所有该标签的索引'''
+            index_list = list(numpy.nonzero(self.cluster_class[:, 0].A == cent)[0])
+            result_list[cent] = (cent, len(index_list), set(index_list))
+            '''输出每一个标签的平均SSE'''
+            print("label " + str(cent) + ", SSE: " + str(
+                sum(self.cluster_class[index_list][:, 1])[0, 0] / len(index_list)))
+        '''输出所有标签的平均SSE'''
+        print("label, SSE: " + str(
+            sum(self.cluster_class[:, 1])[0, 0] / m))
+        '''按列表元素的第二个元素升序排序'''
+        result_list = sorted(result_list, key=lambda x: x[1], reverse=True)
+        '''对两个列表的每个索引集合求交集'''
+        for index in range(self.k):
+            res += len((result_list[index][2]).intersection(label_list[index][2]))
+        print("result: "+str(res / m))
+
+    def show_result(self):
+        """
+        可视化结果，如果是(一定是)多维数据，可以按特征类型将数据划分为两类
+        一类是所有离散特征的距离，一类是所有连续特征的距离
+        :return:
+        """
+
+    def data_divide(self):
+        """
+        在 centroids 聚类中心，以 sample 比例抽取数据
+        因为 self.cluster_class 记录了样本所处的类以及到该类质心的距离
+        因此我们只需要按类别遍历
+        先将同一类所在行索引和距离提取成为一个字典，键为行索引，值为距离
+        之后按值升序排序，按比例选取前若干行索引
+        得到 self.final_data
+        :return:
+        """
+        '''遍历所有标签'''
+        for cent in range(self.k):
+            '''提取属于该类的所有行索引'''
+            index_list = list(numpy.nonzero(self.cluster_class[:, 0].A == cent)[0])
+            '''提取这些含行索引的距离'''
+            index_value = [i for item in self.cluster_class[index_list][:, 1].tolist() for i in item]
+            '''组合为字典'''
+            index_dict = dict(zip(index_list, index_value))
+            '''按字典的值排序'''
+            l = sorted(index_dict.items(), key=lambda item: item[1], reverse=False)
+            '''得到每个类需要抽取的样本数'''
+            num = int(self.sample * len(index_list)) + 1
+            '''收集前 num 个行索引'''
+            self.final_data[cent] = [
+                l[index][0] for index in range(num)
+            ]
