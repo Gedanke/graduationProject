@@ -9,26 +9,10 @@ from core.reliefF import *
 from core.basic import *
 from core.divide import *
 
-"""
-将 original_path 路径的txt文件，以 separator 为分割符，以 attribute_name 为列名(含标签)
-使用 TransformData 类，得到与txt文件同一路径下的csv文件
-"""
-original_path = "../originalDataSet/abalone/abalone.txt"
+original_path = "../originalDataSet/wall-following/wall-following.txt"
 separator = " "
-attribute_name = [
-    "Label", "Length", "Diam", "Height", "Whole", "Shucked", "Viscera", "Shell", "Rings"
-]
-
-
-def fun1():
-    """
-    使用 TransformData 类，调用一次即可
-    :return:
-    """
-    t = TransformData(original_path, separator, attribute_name)
-    '''使用 mine_deal() 或者 standard_data() 方法都可'''
-    t.mine_deal()
-
+attribute_name = ['US1', 'US2', 'US3', 'US4', 'US5', 'US6', 'US7', 'US8', 'US9', 'US10', 'US11', 'US12', 'US13', 'US14',
+                  'US15', 'US16', 'US17', 'US18', 'US19', 'US20', 'US21', 'US22', 'US23', 'US24', 'label']
 
 ''''''
 
@@ -39,11 +23,10 @@ def fun1():
 半监督数据集路径为 data_path_unSupervised
 """
 
-csv_path = "../originalDataSet/abalone/abalone.csv"
-attribute_dict = {
-    "Length": 0, "Diam": 0, "Height": 0, "Whole": 0, "Shucked": 0, "Viscera": 0, "Shell": 0, "Rings": 0,
-    "Label": -1
-}
+csv_path = "../originalDataSet/wall-following/wall-following.csv"
+attribute_dict = {'US1': 0, 'US2': 0, 'US3': 0, 'US4': 0, 'US5': 0, 'US6': 0, 'US7': 0, 'US8': 0, 'US9': 0, 'US10': 0,
+                  'US11': 0, 'US12': 0, 'US13': 0, 'US14': 0, 'US15': 0, 'US16': 0, 'US17': 0, 'US18': 0, 'US19': 0,
+                  'US20': 0, 'US21': 0, 'US22': 0, 'US23': 0, 'US24': 0, 'label': -1}
 remove_rate = 0.8
 
 data_path_supervised = ""

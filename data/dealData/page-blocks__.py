@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 from core.dealData import *
 
 """
@@ -7,11 +8,10 @@ from core.dealData import *
 使用 TransformData 类，得到与txt文件同一路径下的csv文件
 """
 
-original_path = "../originalDataSet/contrac/contrac.txt"
-separator = ","
+original_path = "../originalDataSet/page-blocks_/page-blocks.txt"
+separator = " "
 attribute_name = [
-    "wife_age", "wife_education", "husband_education", "number", "wife_religion", "wife_working", "husband_occupation",
-    "standard", "media_exposure", "label"
+    "Label", "Length", "Diam", "Height", "Whole", "Shucked", "Viscera", "Shell", "Rings"
 ]
 
 
@@ -27,4 +27,6 @@ def fun1():
 
 if __name__ == "__main__":
     ''''''
-    fun1()
+    # fun1()
+    a = '   5   7     35  1.400 .400 .657     2.33     14     23      6 1'
+    print(len(a.split(" ")))

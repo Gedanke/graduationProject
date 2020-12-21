@@ -9,26 +9,12 @@ from core.reliefF import *
 from core.basic import *
 from core.divide import *
 
-"""
-将 original_path 路径的txt文件，以 separator 为分割符，以 attribute_name 为列名(含标签)
-使用 TransformData 类，得到与txt文件同一路径下的csv文件
-"""
-original_path = "../originalDataSet/abalone/abalone.txt"
-separator = " "
+original_path = "../originalDataSet/contrac/contrac.txt"
+separator = ","
 attribute_name = [
-    "Label", "Length", "Diam", "Height", "Whole", "Shucked", "Viscera", "Shell", "Rings"
+    "wife_age", "wife_education", "husband_education", "number", "wife_religion", "wife_working", "husband_occupation",
+    "standard", "media_exposure", "label"
 ]
-
-
-def fun1():
-    """
-    使用 TransformData 类，调用一次即可
-    :return:
-    """
-    t = TransformData(original_path, separator, attribute_name)
-    '''使用 mine_deal() 或者 standard_data() 方法都可'''
-    t.mine_deal()
-
 
 ''''''
 
@@ -39,10 +25,10 @@ def fun1():
 半监督数据集路径为 data_path_unSupervised
 """
 
-csv_path = "../originalDataSet/abalone/abalone.csv"
+csv_path = "../originalDataSet/contrac/contrac.csv"
 attribute_dict = {
-    "Length": 0, "Diam": 0, "Height": 0, "Whole": 0, "Shucked": 0, "Viscera": 0, "Shell": 0, "Rings": 0,
-    "Label": -1
+    "wife_age": 0, "wife_education": 1, "husband_education": 1, "number": 0, "wife_religion": 1, "wife_working": 1,
+    "husband_occupation": 1, "standard": 1, "media_exposure": 1, "label": -1
 }
 remove_rate = 0.8
 

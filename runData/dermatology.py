@@ -9,26 +9,12 @@ from core.reliefF import *
 from core.basic import *
 from core.divide import *
 
-"""
-将 original_path 路径的txt文件，以 separator 为分割符，以 attribute_name 为列名(含标签)
-使用 TransformData 类，得到与txt文件同一路径下的csv文件
-"""
-original_path = "../originalDataSet/abalone/abalone.txt"
-separator = " "
-attribute_name = [
-    "Label", "Length", "Diam", "Height", "Whole", "Shucked", "Viscera", "Shell", "Rings"
-]
-
-
-def fun1():
-    """
-    使用 TransformData 类，调用一次即可
-    :return:
-    """
-    t = TransformData(original_path, separator, attribute_name)
-    '''使用 mine_deal() 或者 standard_data() 方法都可'''
-    t.mine_deal()
-
+original_path = "../originalDataSet/dermatology/dermatology.txt"
+separator = ","
+attribute_name = ['Attr1', 'Attr2', 'Attr3', 'Attr4', 'Attr5', 'Attr6', 'Attr7', 'Attr8', 'Attr9', 'Attr10', 'Attr11',
+                  'Attr12', 'Attr13', 'Attr14', 'Attr15', 'Attr16', 'Attr17', 'Attr18', 'Attr19', 'Attr20', 'Attr21',
+                  'Attr22', 'Attr23', 'Attr24', 'Attr25', 'Attr26', 'Attr27', 'Attr28', 'Attr29', 'Attr30', 'Attr31',
+                  'Attr32', 'Attr33', 'Attr34', 'label']
 
 ''''''
 
@@ -39,11 +25,13 @@ def fun1():
 半监督数据集路径为 data_path_unSupervised
 """
 
-csv_path = "../originalDataSet/abalone/abalone.csv"
-attribute_dict = {
-    "Length": 0, "Diam": 0, "Height": 0, "Whole": 0, "Shucked": 0, "Viscera": 0, "Shell": 0, "Rings": 0,
-    "Label": -1
-}
+csv_path = "../originalDataSet/dermatology/dermatology.csv"
+
+attribute_dict = {'Attr1': 1, 'Attr2': 1, 'Attr3': 1, 'Attr4': 1, 'Attr5': 1, 'Attr6': 1, 'Attr7': 1, 'Attr8': 1,
+                  'Attr9': 1, 'Attr10': 1, 'Attr11': 1, 'Attr12': 1, 'Attr13': 1, 'Attr14': 1, 'Attr15': 1, 'Attr16': 1,
+                  'Attr17': 1, 'Attr18': 1, 'Attr19': 1, 'Attr20': 1, 'Attr21': 1, 'Attr22': 1, 'Attr23': 1,
+                  'Attr24': 1, 'Attr25': 1, 'Attr26': 1, 'Attr27': 1, 'Attr28': 1, 'Attr29': 1, 'Attr30': 1,
+                  'Attr31': 1, 'Attr32': 1, 'Attr33': 1, 'Attr34': 0, 'label': -1}
 remove_rate = 0.8
 
 data_path_supervised = ""

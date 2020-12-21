@@ -157,3 +157,11 @@
       	-- Sharp-Right-Turn: 2097 samples (38.43%).
       	-- Slight-Left-Turn: 328 samples (6.01%).
 
+n_entradas= 24
+n_clases= 4
+n_arquivos= 1
+fich1= wall-following_R.dat
+n_patrons1= 5456
+n_patrons_entrena= 2728
+n_patrons_valida= 2728
+n_conxuntos= 1

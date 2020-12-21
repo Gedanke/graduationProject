@@ -9,26 +9,12 @@ from core.reliefF import *
 from core.basic import *
 from core.divide import *
 
-"""
-将 original_path 路径的txt文件，以 separator 为分割符，以 attribute_name 为列名(含标签)
-使用 TransformData 类，得到与txt文件同一路径下的csv文件
-"""
-original_path = "../originalDataSet/abalone/abalone.txt"
+original_path = "../originalDataSet/letter_/letter.txt"
 separator = " "
 attribute_name = [
-    "Label", "Length", "Diam", "Height", "Whole", "Shucked", "Viscera", "Shell", "Rings"
+    "label", "x-box", "y-box", "width", "high", "onpix", "x-bar", "y-bar", "x2bar", "y2bar", "xybar", "x2ybr", "xy2br",
+    "x-ege", "xegvy", "y-ege", "yegvx"
 ]
-
-
-def fun1():
-    """
-    使用 TransformData 类，调用一次即可
-    :return:
-    """
-    t = TransformData(original_path, separator, attribute_name)
-    '''使用 mine_deal() 或者 standard_data() 方法都可'''
-    t.mine_deal()
-
 
 ''''''
 
@@ -39,10 +25,10 @@ def fun1():
 半监督数据集路径为 data_path_unSupervised
 """
 
-csv_path = "../originalDataSet/abalone/abalone.csv"
+csv_path = "../originalDataSet/letter_/letter.csv"
 attribute_dict = {
-    "Length": 0, "Diam": 0, "Height": 0, "Whole": 0, "Shucked": 0, "Viscera": 0, "Shell": 0, "Rings": 0,
-    "Label": -1
+    "x-box": 1, "y-box": 1, "width": 1, "high": 1, "onpix": 1, "x-bar": 1, "y-bar": 1, "x2bar": 1, "y2bar": 1,
+    "xybar": 1, "x2ybr": 1, "xy2br": 1, "x-ege": 1, "xegvy": 1, "y-ege": 1, "yegvx": 1, "label": -1
 }
 remove_rate = 0.8
 
