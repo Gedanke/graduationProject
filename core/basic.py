@@ -62,7 +62,7 @@ class ReliefF(metaclass=ABCMeta):
         '''近邻搜索空间，键为标签，值为样本索引'''
         self.search_space = dict()
         '''有监督算法里是每个标签含有样本的数量，用来计算加权过程的系数'''
-        '''无监督算法因为含有 None，其是 self.search_space 去除 None 键值对后的字典'''
+        '''无监督算法因为含有 None，其是 self.search_space 去除了 None 键值对后的字典'''
         self.label_dict = dict()
 
     @abstractmethod

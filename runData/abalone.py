@@ -9,10 +9,10 @@ from core.reliefF import *
 from core.basic import *
 from core.divide import *
 
-original_path = "../originalDataSet/abalone/abalone.txt"
+original_path = "../data/originalDataSet/abalone/abalone.txt"
 separator = " "
 attribute_name = [
-    "Label", "Length", "Diam", "Height", "Whole", "Shucked", "Viscera", "Shell", "Rings"
+    "Length", "Diam", "Height", "Whole", "Shucked", "Viscera", "Shell", "Rings", "Label"
 ]
 
 ''''''
@@ -24,15 +24,15 @@ attribute_name = [
 半监督数据集路径为 data_path_unSupervised
 """
 
-csv_path = "../originalDataSet/abalone/abalone.csv"
+csv_path = "../data/originalDataSet/abalone/abalone.csv"
 attribute_dict = {
     "Length": 0, "Diam": 0, "Height": 0, "Whole": 0, "Shucked": 0, "Viscera": 0, "Shell": 0, "Rings": 0,
     "Label": -1
 }
-remove_rate = 0.8
+remove_rate = 0.7
 
-data_path_supervised = ""
-data_path_unSupervised = ""
+data_path_supervised = "../data/processedDataSet/abalone/abalone_supervised.csv"
+data_path_unSupervised = "../data/processedDataSet/abalone/abalone_unSupervised.csv"
 
 
 def fun2():
@@ -76,9 +76,23 @@ KMeans 算法研究：
 得到的新的文件，其路径是位于原本路径的子文件夹 kMeans 下，文件名保持相同
 """
 
-sample = 0.3
-final_path_supervised = ""
-final_path_unSupervised = ""
+sample = 0.2
+final_path_supervised = "../data/processedDataSet/abalone/kMeans/abalone_supervised.csv"
+final_path_unSupervised = "../data/processedDataSet/abalone/kMeans/abalone_unSupervised.csv"
+
+
+def gain_label_index() -> dict:
+    """
+    gain label_index
+    :return:
+    label_index:
+    """
+    label_index = dict()
+    data = pandas.read_csv(data_path_supervised)
+    g = data.groupby(attribute_name[-1]).groups
+    for label, value in g.items():
+        label_index[label] = list(value)
+    return label_index
 
 
 def fun_kMeans():
@@ -89,15 +103,19 @@ def fun_kMeans():
     print("------K_Means------")
     km = MKMeans(pandas.read_csv(data_path_unSupervised), sample)
     ''''''
+    label_index = gain_label_index()
     km.k_means()
     print(km.centroids)
     print(km.cluster_class)
+    km.print_result(label_index)
     km.k_means_pluses()
     print(km.centroids)
     print(km.cluster_class)
+    km.print_result(label_index)
     km.k_means_m()
     print(km.centroids)
     print(km.cluster_class)
+    km.print_result(label_index)
     ''''''
     km.data_divide()
     '''得到最终的文件路径'''
@@ -152,6 +170,8 @@ def relief_f():
 
 
 if __name__ == "__main__":
+    ''''''
     # fun1()
     # print(csv_path)
-    fun2()
+    # fun2()
+    fun_kMeans()

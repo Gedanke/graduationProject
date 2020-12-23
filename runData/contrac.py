@@ -25,15 +25,15 @@ attribute_name = [
 半监督数据集路径为 data_path_unSupervised
 """
 
-csv_path = "../originalDataSet/contrac/contrac.csv"
+csv_path = "../data/originalDataSet/contrac/contrac.csv"
 attribute_dict = {
     "wife_age": 0, "wife_education": 1, "husband_education": 1, "number": 0, "wife_religion": 1, "wife_working": 1,
     "husband_occupation": 1, "standard": 1, "media_exposure": 1, "label": -1
 }
-remove_rate = 0.8
+remove_rate = 0.7
 
-data_path_supervised = ""
-data_path_unSupervised = ""
+data_path_supervised = "../data/processedDataSet/contrac/contrac_supervised.csv"
+data_path_unSupervised = "../data/processedDataSet/contrac/contrac_unSupervised.csv"
 
 
 def fun2():
@@ -82,6 +82,20 @@ final_path_supervised = ""
 final_path_unSupervised = ""
 
 
+def gain_label_index() -> dict:
+    """
+    gain label_index
+    :return:
+    label_index:
+    """
+    label_index = dict()
+    data = pandas.read_csv(data_path_supervised)
+    g = data.groupby(attribute_name[-1]).groups
+    for label, value in g.items():
+        label_index[label] = list(value)
+    return label_index
+
+
 def fun_kMeans():
     """
     调用 MKMeans 算法
@@ -90,15 +104,19 @@ def fun_kMeans():
     print("------K_Means------")
     km = MKMeans(pandas.read_csv(data_path_unSupervised), sample)
     ''''''
+    label_index = gain_label_index()
     km.k_means()
     print(km.centroids)
     print(km.cluster_class)
+    km.print_result(label_index)
     km.k_means_pluses()
     print(km.centroids)
     print(km.cluster_class)
+    km.print_result(label_index)
     km.k_means_m()
     print(km.centroids)
     print(km.cluster_class)
+    km.print_result(label_index)
     ''''''
     km.data_divide()
     '''得到最终的文件路径'''
@@ -153,6 +171,8 @@ def relief_f():
 
 
 if __name__ == "__main__":
+    ''''''
     # fun1()
     # print(csv_path)
-    fun2()
+    # fun2()
+    fun_kMeans()

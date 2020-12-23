@@ -171,9 +171,10 @@ class DealData(object):
                     self.attribute_continuous.append(key)
             else:
                 self.label = key
+        '''GUI 的时候，由用户直接指定路径即可'''
         path_, shot_name, extension = gain_extension(self.path)
         path_list = path_.split("/")
-        path_list[1] = "processedDataSet"
+        path_list[2] = "processedDataSet"
         for path_l in path_list:
             self.supervised_path += path_l + "/"
         self.unSupervised_path = self.supervised_path

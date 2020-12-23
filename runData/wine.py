@@ -9,7 +9,7 @@ from core.reliefF import *
 from core.basic import *
 from core.divide import *
 
-original_path = "../originalDataSet/wine-quality-white/wine-quality-white.txt"
+original_path = "../data/originalDataSet/wine-quality-white/wine-quality-white.txt"
 separator = " "
 attribute_name = [
     "fixed_acidity", "volatile_acidity", "citric_acid", "residual_sugar", "chlorides", "free_sulfur_dioxide",
@@ -25,16 +25,16 @@ attribute_name = [
 半监督数据集路径为 data_path_unSupervised
 """
 
-csv_path = "../originalDataSet/wine-quality-white/wine-quality-white.csv"
+csv_path = "../data/originalDataSet/wine-quality-white/wine-quality-white.csv"
 attribute_dict = {
     "fixed_acidity": 0, "volatile_acidity": 0, "citric_acid": 0, "residual_sugar": 0, "chlorides": 0,
     "free_sulfur_dioxide": 0, "total_sulfur_dioxide": 0, "density": 0, "pH": 0, "sulphates": 0, "alcohol": 0,
     "label": -1
 }
-remove_rate = 0.8
+remove_rate = 0.7
 
-data_path_supervised = ""
-data_path_unSupervised = ""
+data_path_supervised = "../data/processedDataSet/wine-quality-white/wine-quality-white_supervised.csv"
+data_path_unSupervised = "../data/processedDataSet/wine-quality-white/wine-quality-white_unSupervised.csv"
 
 
 def fun2():
@@ -79,8 +79,22 @@ KMeans 算法研究：
 """
 
 sample = 0.3
-final_path_supervised = ""
-final_path_unSupervised = ""
+final_path_supervised = "../data/processedDataSet/wine-quality-white/kMeans/wine-quality-white_supervised.csv"
+final_path_unSupervised = "../data/processedDataSet/wine-quality-white/kMeans/wine-quality-white_unSupervised.csv"
+
+
+def gain_label_index() -> dict:
+    """
+    gain label_index
+    :return:
+    label_index:
+    """
+    label_index = dict()
+    data = pandas.read_csv(data_path_supervised)
+    g = data.groupby(attribute_name[-1]).groups
+    for label, value in g.items():
+        label_index[label] = list(value)
+    return label_index
 
 
 def fun_kMeans():
@@ -91,15 +105,19 @@ def fun_kMeans():
     print("------K_Means------")
     km = MKMeans(pandas.read_csv(data_path_unSupervised), sample)
     ''''''
+    label_index = gain_label_index()
     km.k_means()
     print(km.centroids)
     print(km.cluster_class)
+    km.print_result(label_index)
     km.k_means_pluses()
     print(km.centroids)
     print(km.cluster_class)
+    km.print_result(label_index)
     km.k_means_m()
     print(km.centroids)
     print(km.cluster_class)
+    km.print_result(label_index)
     ''''''
     km.data_divide()
     '''得到最终的文件路径'''
@@ -154,6 +172,8 @@ def relief_f():
 
 
 if __name__ == "__main__":
+    ''''''
     # fun1()
     # print(csv_path)
-    fun2()
+    # fun2()
+    fun_kMeans()

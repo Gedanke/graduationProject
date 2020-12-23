@@ -25,17 +25,17 @@ attribute_name = ['Attr1', 'Attr2', 'Attr3', 'Attr4', 'Attr5', 'Attr6', 'Attr7',
 半监督数据集路径为 data_path_unSupervised
 """
 
-csv_path = "../originalDataSet/dermatology/dermatology.csv"
+csv_path = "../data/originalDataSet/dermatology/dermatology.csv"
 
 attribute_dict = {'Attr1': 1, 'Attr2': 1, 'Attr3': 1, 'Attr4': 1, 'Attr5': 1, 'Attr6': 1, 'Attr7': 1, 'Attr8': 1,
                   'Attr9': 1, 'Attr10': 1, 'Attr11': 1, 'Attr12': 1, 'Attr13': 1, 'Attr14': 1, 'Attr15': 1, 'Attr16': 1,
                   'Attr17': 1, 'Attr18': 1, 'Attr19': 1, 'Attr20': 1, 'Attr21': 1, 'Attr22': 1, 'Attr23': 1,
                   'Attr24': 1, 'Attr25': 1, 'Attr26': 1, 'Attr27': 1, 'Attr28': 1, 'Attr29': 1, 'Attr30': 1,
                   'Attr31': 1, 'Attr32': 1, 'Attr33': 1, 'Attr34': 0, 'label': -1}
-remove_rate = 0.8
+remove_rate = 0.7
 
-data_path_supervised = ""
-data_path_unSupervised = ""
+data_path_supervised = "../data/processedDataSet/dermatology/dermatology_supervised.csv"
+data_path_unSupervised = "../data/processedDataSet/dermatology/dermatology_unSupervised.csv"
 
 
 def fun2():
@@ -84,6 +84,20 @@ final_path_supervised = ""
 final_path_unSupervised = ""
 
 
+def gain_label_index() -> dict:
+    """
+    gain label_index
+    :return:
+    label_index:
+    """
+    label_index = dict()
+    data = pandas.read_csv(data_path_supervised)
+    g = data.groupby(attribute_name[-1]).groups
+    for label, value in g.items():
+        label_index[label] = list(value)
+    return label_index
+
+
 def fun_kMeans():
     """
     调用 MKMeans 算法
@@ -92,15 +106,19 @@ def fun_kMeans():
     print("------K_Means------")
     km = MKMeans(pandas.read_csv(data_path_unSupervised), sample)
     ''''''
+    label_index = gain_label_index()
     km.k_means()
-    print(km.centroids)
-    print(km.cluster_class)
+    # print(km.centroids)
+    # print(km.cluster_class)
+    km.print_result(label_index)
     km.k_means_pluses()
-    print(km.centroids)
-    print(km.cluster_class)
+    # print(km.centroids)
+    # print(km.cluster_class)
+    km.print_result(label_index)
     km.k_means_m()
-    print(km.centroids)
-    print(km.cluster_class)
+    # print(km.centroids)
+    # print(km.cluster_class)
+    km.print_result(label_index)
     ''''''
     km.data_divide()
     '''得到最终的文件路径'''
@@ -155,6 +173,8 @@ def relief_f():
 
 
 if __name__ == "__main__":
+    ''''''
     # fun1()
     # print(csv_path)
-    fun2()
+    # fun2()
+    fun_kMeans()

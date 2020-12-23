@@ -98,14 +98,14 @@ class ReliefFSupervised(ReliefF):
         '''将距离字典排序'''
         distance_list = sorted(distance_dict.items(), key=lambda item: item[1], reverse=False)
         if row_label == label:
-            '''若 row 的标签和 label 相同，寻找与self.search_space[label] 中最近的 k + 1 个邻居'''
+            '''若 row 的标签和 label 相同，寻找与 self.search_space[label] 中最近的 k + 1 个邻居'''
             sim = [
                 distance_list[index][0] for index in range(self.k + 1)
             ]
             '''最后把第一个去除了'''
             sim.pop(0)
         else:
-            '''若 row 的标签和 label 不相同，寻找与self.search_space[label] 中最近的 k 个邻居'''
+            '''若 row 的标签和 label 不相同，寻找与 self.search_space[label] 中最近的 k 个邻居'''
             sim = [
                 distance_list[index][0] for index in range(self.k)
             ]

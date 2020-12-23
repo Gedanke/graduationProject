@@ -25,4 +25,4 @@ def fun1():
 
 if __name__ == "__main__":
     '''将 label 列移至最后一行'''
-    fun1()
+    # fun1()

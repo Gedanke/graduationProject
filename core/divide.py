@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy
-import pandas
-from typing import Dict, Any, Tuple
+import time
+from typing import Any, Tuple
 import matplotlib.pyplot as plt
 import sys
 from core.dealData import *
@@ -178,6 +178,10 @@ class MKMeans(object):
         self.data = data
         self.sample = sample
         self.parameter_dict = parameter_dict
+        ''''''
+        self.tol = 1e-4
+        ''''''
+        self.max_iter = 100
         '''将 self.data 的数据域(只含特征值，不含标签)转换为 numpy 矩阵'''
         self.array_data = None
         '''k 值是有标签的类别数'''
@@ -210,14 +214,16 @@ class MKMeans(object):
         dist_juli = distance(centroids[j, :], self.array_data[i, :])
         的 centroids 会因为 self.center_point 的初始类型 list() 发出警告，当然不影响结果'''
         self.center_point = list()
+        '''先将原有数据的标签列去除'''
+        tmp_data = self.data.drop(columns=self.attribute_list[-1], inplace=False)
+        '''遍历标签分组'''
         for label, value in label_groups.items():
             '''求得每个标签下的所有标签距离的均值'''
             if label != "None":
                 self.center_point.append(
-                    list(self.data.iloc[list(value)].mean()))
+                    list(tmp_data.iloc[list(value)].mean()))
         '''inplace=False，删除标签所在列不改变原数据，返回一个执行删除操作后的新 dataframe，将其转换为 numpy 矩阵'''
-        self.array_data = numpy.mat(self.data.drop(
-            columns=self.attribute_list[-1], inplace=False))
+        self.array_data: numpy.mat = numpy.mat(tmp_data)
         '''self.center_point 转换为 numpy.mat 类型'''
         self.center_point: numpy.mat = numpy.mat(self.center_point)
 
@@ -238,8 +244,10 @@ class MKMeans(object):
         '''聚类结果是否发生变化的布尔类型'''
         cluster_changed = True
         '''终止条件，所有数据点聚类结果不发生变化'''
-        while cluster_changed:
-            '''聚类结果变化布尔类型置为 False'''
+        tmp_max_iter = self.max_iter
+        while cluster_changed and tmp_max_iter > 0:
+            '''聚类结果变化最大迭代次数减去一，布尔类型置为 False'''
+            tmp_max_iter -= 1
             cluster_changed = False
             '''遍历矩阵的每一个向量'''
             for i in range(m):
@@ -250,15 +258,14 @@ class MKMeans(object):
                 '''循环 self.k 个类的质心'''
                 for j in range(self.k):
                     '''计算每个样本到质心的欧式距离'''
-                    dist_juli = distance(
-                        centroids[j, :], self.array_data[i, :])
+                    dist_juli = distance(centroids[j, :], self.array_data[i, :])
                     '''如果当前距离小于当前最小距离'''
                     if dist_juli < min_dist:
                         '''当前距离为最小距离，最小距离对应的索引为 j(第j类)'''
                         min_dist = dist_juli
                         min_index = j
                 '''当前聚类结果第 i 个样本的聚类结果发生变化，cluster_changed 置为 True，继续进行聚类算法'''
-                if cluster_class[i, 0] != min_index:
+                if abs(cluster_class[i, 0] - min_index) > self.tol:
                     cluster_changed = True
                 '''更新当前变化样本的聚类结果和误差平方'''
                 cluster_class[i, :] = min_index, min_dist ** 2
@@ -278,7 +285,9 @@ class MKMeans(object):
         """
         '''聚类中心由 KMeans 聚类算法给出'''
         centroids_ = rand_cent(self.array_data, self.k)
+        t1 = time.time()
         self.centroids, self.cluster_class = self.k_means_basic(centroids_)
+        print("time: " + str(time.time() - t1))
 
     def k_means_pluses(self):
         """
@@ -287,15 +296,19 @@ class MKMeans(object):
         """
         '''聚类中心由 KMeans++ 聚类算法给出'''
         centroids_ = rand_cent_pluses(self.array_data, self.k)
+        t1 = time.time()
         self.centroids, self.cluster_class = self.k_means_basic(centroids_)
+        print("time: " + str(time.time() - t1))
 
     def k_means_m(self):
         """
         KMeans 改进初始聚类中心的聚类算法
         :return:
         """
+        t1 = time.time()
         '''聚类中心由改进的 KMeans 聚类算法给出'''
         self.centroids, self.cluster_class = self.k_means_basic(self.center_point)
+        print("time: " + str(time.time() - t1))
 
     def print_result(self, label_index: dict):
         """
@@ -309,7 +322,7 @@ class MKMeans(object):
         label_list = list(range(len(label_index)))
         '''矩阵维度'''
         m = numpy.shape(self.array_data)[0]
-        '''转换'''     
+        '''转换'''
         for key, value in label_index.items():
             label_list[i] = (i, len(value), set(value))
             i += 1
@@ -332,7 +345,7 @@ class MKMeans(object):
         '''对两个列表的每个索引集合求交集'''
         for index in range(self.k):
             res += len((result_list[index][2]).intersection(label_list[index][2]))
-        print("result: "+str(res / m))
+        print("result: " + str(res / m))
 
     def show_result(self):
         """
