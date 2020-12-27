@@ -29,7 +29,7 @@ attribute_dict = {
     "Length": 0, "Diam": 0, "Height": 0, "Whole": 0, "Shucked": 0, "Viscera": 0, "Shell": 0, "Rings": 0,
     "Label": -1
 }
-remove_rate = 0.7
+remove_rate = 0.9
 
 data_path_supervised = "../data/processedDataSet/abalone/abalone_supervised.csv"
 data_path_unSupervised = "../data/processedDataSet/abalone/abalone_unSupervised.csv"
@@ -161,11 +161,14 @@ def relief_f():
                                          attribute_dict, relief_rate, k)
     r_unSupervised_improve = ReliefFUnsupervisedImprove(pandas.read_csv(final_path_unSupervised),
                                                         attribute_dict, relief_rate, k)
-    res_supervised = r_supervised.relief_f()
+    res_supervised = dict(r_supervised.relief_f())
+    res_supervised = sorted(res_supervised.items(), key=lambda item: item[1], reverse=True)
     print(res_supervised)
-    res_unsupervised = r_unSupervised.relief_f()
+    res_unsupervised = dict(r_unSupervised.relief_f())
+    res_unsupervised = sorted(res_unsupervised.items(), key=lambda item: item[1], reverse=True)
     print(res_unsupervised)
-    res_unsupervised_improve = r_unSupervised_improve.relief_f()
+    res_unsupervised_improve = dict(r_unSupervised_improve.relief_f())
+    res_unsupervised_improve = sorted(res_unsupervised_improve.items(), key=lambda item: item[1], reverse=True)
     print(res_unsupervised_improve)
 
 
@@ -173,5 +176,6 @@ if __name__ == "__main__":
     ''''''
     # fun1()
     # print(csv_path)
-    # fun2()
+    fun2()
     fun_kMeans()
+    # relief_f()

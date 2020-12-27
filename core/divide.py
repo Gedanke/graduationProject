@@ -127,6 +127,7 @@ def rand_cent_pluses(data, k: int) -> numpy.mat:
         dist = numpy.array(dist)
         '''返回的是 dist 里面最大值的下标，对应的是上面循环中的 i'''
         next_centroid = data[numpy.argmax(dist), :]
+        dist = []
         '''选出了下一次的聚类中心，开始 k+1 循环'''
         centroids[c_id + 1, :] = next_centroid
     return centroids
@@ -284,8 +285,8 @@ class MKMeans(object):
         KMeans 聚类算法
         """
         '''聚类中心由 KMeans 聚类算法给出'''
-        centroids_ = rand_cent(self.array_data, self.k)
         t1 = time.time()
+        centroids_ = rand_cent(self.array_data, self.k)
         self.centroids, self.cluster_class = self.k_means_basic(centroids_)
         print("time: " + str(time.time() - t1))
 
@@ -295,8 +296,8 @@ class MKMeans(object):
         https://zhuanlan.zhihu.com/p/149978127
         """
         '''聚类中心由 KMeans++ 聚类算法给出'''
-        centroids_ = rand_cent_pluses(self.array_data, self.k)
         t1 = time.time()
+        centroids_ = rand_cent_pluses(self.array_data, self.k)
         self.centroids, self.cluster_class = self.k_means_basic(centroids_)
         print("time: " + str(time.time() - t1))
 

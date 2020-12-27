@@ -32,7 +32,7 @@ attribute_dict = {'Attr1': 1, 'Attr2': 1, 'Attr3': 1, 'Attr4': 1, 'Attr5': 1, 'A
                   'Attr17': 1, 'Attr18': 1, 'Attr19': 1, 'Attr20': 1, 'Attr21': 1, 'Attr22': 1, 'Attr23': 1,
                   'Attr24': 1, 'Attr25': 1, 'Attr26': 1, 'Attr27': 1, 'Attr28': 1, 'Attr29': 1, 'Attr30': 1,
                   'Attr31': 1, 'Attr32': 1, 'Attr33': 1, 'Attr34': 0, 'label': -1}
-remove_rate = 0.7
+remove_rate = 0.9
 
 data_path_supervised = "../data/processedDataSet/dermatology/dermatology_supervised.csv"
 data_path_unSupervised = "../data/processedDataSet/dermatology/dermatology_unSupervised.csv"
@@ -80,8 +80,8 @@ KMeans 算法研究：
 """
 
 sample = 0.3
-final_path_supervised = ""
-final_path_unSupervised = ""
+final_path_supervised = "../data/processedDataSet/dermatology/kMeans/dermatology_supervised.csv"
+final_path_unSupervised = "../data/processedDataSet/dermatology/kMeans/dermatology_unSupervised.csv"
 
 
 def gain_label_index() -> dict:
@@ -164,11 +164,14 @@ def relief_f():
                                          attribute_dict, relief_rate, k)
     r_unSupervised_improve = ReliefFUnsupervisedImprove(pandas.read_csv(final_path_unSupervised),
                                                         attribute_dict, relief_rate, k)
-    res_supervised = r_supervised.relief_f()
+    res_supervised = dict(r_supervised.relief_f())
+    res_supervised = sorted(res_supervised.items(), key=lambda item: item[1], reverse=True)
     print(res_supervised)
-    res_unsupervised = r_unSupervised.relief_f()
+    res_unsupervised = dict(r_unSupervised.relief_f())
+    res_unsupervised = sorted(res_unsupervised.items(), key=lambda item: item[1], reverse=True)
     print(res_unsupervised)
-    res_unsupervised_improve = r_unSupervised_improve.relief_f()
+    res_unsupervised_improve = dict(r_unSupervised_improve.relief_f())
+    res_unsupervised_improve = sorted(res_unsupervised_improve.items(), key=lambda item: item[1], reverse=True)
     print(res_unsupervised_improve)
 
 
@@ -176,5 +179,6 @@ if __name__ == "__main__":
     ''''''
     # fun1()
     # print(csv_path)
-    # fun2()
+    fun2()
     fun_kMeans()
+    # relief_f()

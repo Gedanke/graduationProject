@@ -30,7 +30,7 @@ attribute_dict = {
     "wife_age": 0, "wife_education": 1, "husband_education": 1, "number": 0, "wife_religion": 1, "wife_working": 1,
     "husband_occupation": 1, "standard": 1, "media_exposure": 1, "label": -1
 }
-remove_rate = 0.7
+remove_rate = 0.9
 
 data_path_supervised = "../data/processedDataSet/contrac/contrac_supervised.csv"
 data_path_unSupervised = "../data/processedDataSet/contrac/contrac_unSupervised.csv"
@@ -77,9 +77,9 @@ KMeans 算法研究：
 得到的新的文件，其路径是位于原本路径的子文件夹 kMeans 下，文件名保持相同
 """
 
-sample = 0.3
-final_path_supervised = ""
-final_path_unSupervised = ""
+sample = 0.2
+final_path_supervised = "../data/processedDataSet/contrac/kMeans/contrac_supervised.csv"
+final_path_unSupervised = "../data/processedDataSet/contrac/kMeans/contrac_unSupervised.csv"
 
 
 def gain_label_index() -> dict:
@@ -162,11 +162,14 @@ def relief_f():
                                          attribute_dict, relief_rate, k)
     r_unSupervised_improve = ReliefFUnsupervisedImprove(pandas.read_csv(final_path_unSupervised),
                                                         attribute_dict, relief_rate, k)
-    res_supervised = r_supervised.relief_f()
+    res_supervised = dict(r_supervised.relief_f())
+    res_supervised = sorted(res_supervised.items(), key=lambda item: item[1], reverse=True)
     print(res_supervised)
-    res_unsupervised = r_unSupervised.relief_f()
+    res_unsupervised = dict(r_unSupervised.relief_f())
+    res_unsupervised = sorted(res_unsupervised.items(), key=lambda item: item[1], reverse=True)
     print(res_unsupervised)
-    res_unsupervised_improve = r_unSupervised_improve.relief_f()
+    res_unsupervised_improve = dict(r_unSupervised_improve.relief_f())
+    res_unsupervised_improve = sorted(res_unsupervised_improve.items(), key=lambda item: item[1], reverse=True)
     print(res_unsupervised_improve)
 
 
@@ -174,5 +177,6 @@ if __name__ == "__main__":
     ''''''
     # fun1()
     # print(csv_path)
-    # fun2()
+    fun2()
     fun_kMeans()
+    # relief_f()

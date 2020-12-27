@@ -27,7 +27,7 @@ csv_path = "../data/originalDataSet/wall-following/wall-following.csv"
 attribute_dict = {'US1': 0, 'US2': 0, 'US3': 0, 'US4': 0, 'US5': 0, 'US6': 0, 'US7': 0, 'US8': 0, 'US9': 0, 'US10': 0,
                   'US11': 0, 'US12': 0, 'US13': 0, 'US14': 0, 'US15': 0, 'US16': 0, 'US17': 0, 'US18': 0, 'US19': 0,
                   'US20': 0, 'US21': 0, 'US22': 0, 'US23': 0, 'US24': 0, 'label': -1}
-remove_rate = 0.7
+remove_rate = 0.9
 
 data_path_supervised = "../data/processedDataSet/wall-following/wall-following_supervised.csv"
 data_path_unSupervised = "../data/processedDataSet/wall-following/wall-following_unSupervised.csv"
@@ -159,11 +159,14 @@ def relief_f():
                                          attribute_dict, relief_rate, k)
     r_unSupervised_improve = ReliefFUnsupervisedImprove(pandas.read_csv(final_path_unSupervised),
                                                         attribute_dict, relief_rate, k)
-    res_supervised = r_supervised.relief_f()
+    res_supervised = dict(r_supervised.relief_f())
+    res_supervised = sorted(res_supervised.items(), key=lambda item: item[1], reverse=True)
     print(res_supervised)
-    res_unsupervised = r_unSupervised.relief_f()
+    res_unsupervised = dict(r_unSupervised.relief_f())
+    res_unsupervised = sorted(res_unsupervised.items(), key=lambda item: item[1], reverse=True)
     print(res_unsupervised)
-    res_unsupervised_improve = r_unSupervised_improve.relief_f()
+    res_unsupervised_improve = dict(r_unSupervised_improve.relief_f())
+    res_unsupervised_improve = sorted(res_unsupervised_improve.items(), key=lambda item: item[1], reverse=True)
     print(res_unsupervised_improve)
 
 
@@ -171,5 +174,6 @@ if __name__ == "__main__":
     ''''''
     # fun1()
     # print(csv_path)
-    # fun2()
+    fun2()
     fun_kMeans()
+    # relief_f()
