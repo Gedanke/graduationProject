@@ -7,8 +7,6 @@ from abc import ABC
 from abc import ABCMeta, abstractmethod
 from sklearn.neighbors import KDTree
 
-folder = "/home/dfs/common/148_data"
-
 
 class A(metaclass=ABCMeta):
     def __init__(self, a):

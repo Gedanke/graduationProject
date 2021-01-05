@@ -30,8 +30,3 @@ def fun1():
 if __name__ == "__main__":
     ''''''
     # fun1()
-    # for i in range(21):
-    #     attribute_name.append("Attr" + str(i + 1))
-    #     attribute_dict["Attr" + str(i + 1)] = 0
-    # print(attribute_name)
-    # print(attribute_dict)
